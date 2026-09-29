@@ -1,0 +1,90 @@
+{% comment %}
+Partial: shop/_order_card.html
+Variables expected from parent:
+  order        — Order instance
+  s_class      — CSS class for status badge  e.g. "status-pending"
+  tl_order     — int 0..3  (0=cancelled, 1=pending, 2=confirmed, 3=delivered)
+  msg_class    — CSS class for message banner
+  msg_icon     — Bootstrap icon class
+  msg_text     — Message string
+{% endcomment %}
+
+<div class="order-card">
+
+  <!-- HEADER -->
+  <div class="order-card-header">
+    <div>
+      <div class="order-id">Order <span>#{{ order.id }}</span></div>
+      <div class="order-date">{{ order.ordered_at|date:"d M Y, H:i" }}</div>
+    </div>
+    <span class="status-badge {{ s_class }}">
+      <span class="dot"></span>
+      {{ order.status }}
+    </span>
+  </div>
+
+  <!-- BODY -->
+  <div class="order-card-body">
+
+    <!-- Product row -->
+    <div class="product-row">
+      <div class="product-thumb">
+        {% if order.product.image %}
+          <img src="{{ order.product.image.url }}" alt="{{ order.product.name }}"/>
+        {% else %}
+          <img src="https://images.unsplash.com/photo-1596716075191-236f0df56070?q=80&w=200&auto=format&fit=crop" alt="Product"/>
+        {% endif %}
+      </div>
+      <div>
+        <div class="product-name-main">{{ order.product.name }}</div>
+        <div class="product-chips">
+          {% if order.flavor %}
+            <span class="chip-sm orange">{{ order.flavor.name }}</span>
+          {% endif %}
+          <span class="chip-sm">Qty {{ order.quantity }}</span>
+          <span class="chip-sm price">₹{{ order.total_price|floatformat:0 }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TIMELINE (hidden for cancelled) -->
+    {% if tl_order > 0 %}
+    <div class="timeline">
+      <!-- Step 1: Order Placed -->
+      <div class="tl-step">
+        <div class="tl-dot done"><i class="bi bi-check-lg"></i></div>
+        <div class="tl-label done">Placed</div>
+      </div>
+
+      <!-- Step 2: Confirmed (at gym) -->
+      <div class="tl-step">
+        {% if tl_order >= 2 %}
+          <div class="tl-dot done {% if tl_order == 2 %}pulse{% endif %}"><i class="bi bi-building-check"></i></div>
+          <div class="tl-label {% if tl_order == 2 %}active{% else %}done{% endif %}">At Gym</div>
+        {% else %}
+          <div class="tl-dot"><i class="bi bi-building"></i></div>
+          <div class="tl-label">At Gym</div>
+        {% endif %}
+      </div>
+
+      <!-- Step 3: Delivered/Picked up -->
+      <div class="tl-step">
+        {% if tl_order >= 3 %}
+          <div class="tl-dot done"><i class="bi bi-check-circle"></i></div>
+          <div class="tl-label done">Collected</div>
+        {% else %}
+          <div class="tl-dot"><i class="bi bi-bag-check"></i></div>
+          <div class="tl-label">Collected</div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- STATUS MESSAGE -->
+    <div class="status-msg {{ msg_class }}">
+      <i class="bi {{ msg_icon }}"></i>
+      {{ msg_text }}
+    </div>
+
+  </div>
+</div>

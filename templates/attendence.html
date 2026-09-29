@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Attendance{% endblock %}
+{% block heading %}Attendance{% endblock %}
+{% block link %}
+<link rel="stylesheet" href="{% static 'css/attendence.css' %}" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block message %}
+<div id="message-container">
+  {% for message in messages %}
+  <div class="flash-message {% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% else %}default{% endif %}">
+    <span class="msg-icon">{% if message.tags == 'success' %}✓{% elif message.tags == 'error' %}✕{% else %}◈{% endif %}</span>
+    <span>{{ message }}</span>
+    <button class="close-btn">×</button>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block content %}
+
+{# Attended dates for heatmap #}
+<script nonce="{{ request.csp_nonce }}">
+  const ATTENDED_DATES = [
+    {% for a in attended %}"{{ a.date|date:'Y-m-d' }}"{% if not forloop.last %},{% endif %}{% endfor %}
+  ];
+</script>
+
+<div class="attendance-container hero-animate">
+
+  {# ── HUD HEADER ── #}
+  <div class="hud-header">
+    <div class="hud-line"></div>
+    <div class="date-display">
+      <span class="date-label">SYS DATE</span>
+      <span class="date-value">{{ today }}</span>
+    </div>
+    <div class="hud-line"></div>
+  </div>
+
+  {# ── MARK ATTENDANCE BUTTON ── #}
+  <div class="mark-section">
+
+    <form method="POST" id="attendance-form">
+      {% csrf_token %}
+      <button
+        type="button"
+        id="btn-attend"
+        {% if already_mark %}disabled{% endif %}
+        class="btn-mark {% if already_mark %}marked{% endif %}"
+      >
+        <span class="btn-glow"></span>
+        <span class="btn-text" id="btn-label">
+          {% if already_mark %}
+            <span class="check-icon">✓</span> ATTENDANCE LOGGED
+          {% else %}
+            <span class="pulse-ring"></span>◈ MARK ATTENDANCE
+          {% endif %}
+        </span>
+        <span class="btn-scanline"></span>
+      </button>
+    </form>
+
+    {# ── Geo error message ── #}
+    <div id="geo-error" style="
+      display: none;
+      margin-top: 12px;
+      padding: 12px 16px;
+      border-radius: 6px;
+      border-left: 3px solid #ff3c3c;
+      background: rgba(255,60,60,0.08);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      color: #ff3c3c;
+      text-align: center;
+      letter-spacing: 1px;
+    ">
+      <span id="geo-error-text">⊘ OUT OF RANGE</span>
+      <div id="geo-distance" style="
+        margin-top: 6px;
+        font-size: 11px;
+        color: #ff6b6b;
+        letter-spacing: 2px;
+      "></div>
+    </div>
+
+    {# ── Background tracking banner ── #}
+    <div id="auto-mark-banner" style="
+      display: none;
+      margin-top: 12px;
+      padding: 12px 16px;
+      border-radius: 6px;
+      border-left: 3px solid #39ff6e;
+      background: rgba(57,255,110,0.08);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: #39ff6e;
+      text-align: center;
+      letter-spacing: 1px;
+    ">
+      ◈ BACKGROUND TRACKING ACTIVE — ATTENDANCE MARKS AUTOMATICALLY WHEN YOU ARRIVE
+    </div>
+
+    {# ── iOS note ── #}
+    <div id="ios-note" style="
+      display: none;
+      margin-top: 10px;
+      padding: 10px 16px;
+      border-radius: 6px;
+      border-left: 3px solid #00dcff;
+      background: rgba(0,220,255,0.06);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: #00dcff;
+      text-align: center;
+      letter-spacing: 1px;
+    ">
+      iPHONE USERS — KEEP THIS PAGE OPEN FOR AUTO-ATTENDANCE DETECTION
+    </div>
+
+  </div>
+
+  {# ── STATS ROW ── #}
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">TOTAL DAYS</div>
+      <div class="stat-value green" data-target="{{ total_days }}">{{ total_days }}</div>
+      <div class="stat-bar"><div class="stat-bar-fill green-fill" style="width:{{ total_days }}%"></div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">THIS MONTH</div>
+      <div class="stat-value cyan" data-target="{{ monthly_days }}">{{ monthly_days }}</div>
+      <div class="stat-bar"><div class="stat-bar-fill cyan-fill" style="width:{{ monthly_days }}%"></div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">STREAK</div>
+      <div class="stat-value orange" id="streak-val">0</div>
+      <div class="stat-bar"><div class="stat-bar-fill orange-fill" id="streak-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  {# ── HEATMAP ── #}
+  <div class="heatmap-section">
+    <div class="section-header">
+      <span class="section-tag">◈</span>
+      <h2 class="section-title">ATTENDANCE MATRIX</h2>
+      <span class="section-tag">◈</span>
+    </div>
+    <div class="heatmap-wrap">
+      <div class="heatmap-months" id="heatmap-months"></div>
+      <div class="heatmap-body">
+        <div class="heatmap-days">
+          <span>M</span><span></span><span>W</span><span></span><span>F</span><span></span><span>S</span>
+        </div>
+        <div class="heatmap-grid" id="heatmap-grid"></div>
+      </div>
+      <div class="heatmap-legend">
+        <span>LESS</span>
+        <div class="legend-box l0"></div>
+        <div class="legend-box l1"></div>
+        <div class="legend-box l2"></div>
+        <span>MORE</span>
+      </div>
+    </div>
+  </div>
+
+  {# ── TIMELINE ── #}
+  <div class="timeline-section">
+    <div class="section-header">
+      <span class="section-tag">◈</span>
+      <h2 class="section-title">LOG HISTORY</h2>
+      <span class="section-tag">◈</span>
+    </div>
+    <div class="timeline-list">
+      {% for a in attended %}
+      <div class="timeline-item" style="animation-delay: {{ forloop.counter0 }}00ms">
+        <div class="tl-dot"></div>
+        <div class="tl-connector"></div>
+        <div class="tl-content">
+          <span class="tl-date">{{ a.date|date:"D, d M Y" }}</span>
+          <span class="tl-time">{{ a.timestamp|time:"H:i:s" }}</span>
+        </div>
+        <div class="tl-badge">PRESENT</div>
+      </div>
+      {% empty %}
+      <div class="empty-state">
+        <div class="empty-icon">◌</div>
+        <p>NO ATTENDANCE RECORDS FOUND</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+{# ── Show banners and wire button via nonce script ── #}
+<script nonce="{{ request.csp_nonce }}">
+  {% if not already_mark %}
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    document.getElementById('auto-mark-banner').style.display = 'block';
+  }
+  {% endif %}
+
+  var btn = document.getElementById('btn-attend');
+  if (btn && !btn.disabled) {
+    btn.addEventListener('click', function () {
+      checkLocationAndSubmit();
+    });
+  }
+</script>
+
+<script src="{% static 'js/messages.js' %}"></script>
+<script src="{% static 'js/attendance_heatmap.js' %}"></script>
+
+{% endblock %}

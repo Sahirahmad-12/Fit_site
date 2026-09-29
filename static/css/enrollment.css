@@ -1,0 +1,420 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Flash Messages ── */
+#message-container {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  width: 100%;
+  max-width: 400px;
+  padding: 0 16px;
+}
+.flash-message {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+}
+.flash-message.success {
+  background: linear-gradient(to right, #22c55e, #059669);
+}
+.flash-message.error {
+  background: linear-gradient(to right, #ef4444, #b91c1c);
+}
+.flash-message.default {
+  background-color: #1f2937;
+}
+.close-btn {
+  margin-left: 10px;
+  font-size: 18px;
+  font-weight: 700;
+  border: none;
+  background: none;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.close-btn:hover {
+  transform: scale(1.1);
+}
+
+/* ── CSS Variables ── */
+:root {
+  --orange: #f97316;
+  --orange-hover: #ea6c0a;
+  --orange-glow: rgba(249, 115, 22, 0.2);
+  --bg-card: rgba(0, 0, 0, 0.6);
+  --bg-input: rgba(0, 0, 0, 0.6);
+  --border: rgba(249, 115, 22, 0.4);
+  --text-muted: #9ca3af;
+  --text-white: #fff;
+}
+
+/* ── Hero Header ── */
+.hero-header h1 {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 45px;
+  color: var(--orange);
+  letter-spacing: 3px;
+  margin-top: 8px;
+  text-shadow: 0 0 40px rgba(249, 115, 22, 0.4);
+}
+.hero-header p {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-top: 10px;
+  max-width: 520px;
+  margin-inline: auto;
+}
+
+/* ── Page Body ── */
+.page-body {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  padding: 28px 16px 60px;
+}
+.hero-animate {
+  opacity: 0;
+  transform: translateY(40px);
+  animation: smoothFade 0.5s ease-out forwards;
+}
+@keyframes smoothFade {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Form Card ── */
+.form-card {
+  width: 100%;
+  max-width: 720px;
+  background: var(--bg-card);
+  pointer-events: auto;
+  border: 1px solid rgba(249, 115, 22, 0.2);
+  border-radius: 20px;
+  padding: 40px 36px;
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, 0.7),
+    0 0 50px rgba(249, 115, 22, 0.12);
+  animation: fadeSlideUp 0.6s ease both;
+}
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Section Title ── */
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--orange);
+  letter-spacing: 0.5px;
+  margin-bottom: 20px;
+}
+.color-price {
+  color: var(--orange);
+}
+
+/* ── Grid ── */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.col-full {
+  grid-column: 1/-1;
+}
+
+/* ── Fields ── */
+.field {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  color: var(--text-white);
+  border-radius: 12px;
+  padding: 13px 16px;
+  font-family: "Barlow", sans-serif;
+  font-size: 16px;
+  outline: none;
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
+}
+.field::placeholder {
+  color: var(--text-muted);
+}
+.field:hover,
+.field:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px var(--orange-glow);
+}
+.field:read-only {
+  cursor: default;
+  opacity: 0.75;
+}
+.field:read-only:hover {
+  border-color: var(--border);
+  box-shadow: none;
+}
+.field:-webkit-autofill,
+.field:-webkit-autofill:hover,
+.field:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text-white);
+  -webkit-box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.6) inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* ── Date Input ── */
+input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  color: var(--text-white);
+  border-radius: 12px;
+  padding: 13px 16px;
+  font-family: "Barlow", sans-serif;
+  font-size: 16px;
+  outline: none;
+  height: auto;              
+  line-height: 1.5;         
+  cursor: pointer;
+  color-scheme: dark;
+  box-sizing: border-box;    
+}
+input[type="date"]:hover,
+input[type="date"]:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px var(--orange-glow);
+}
+input[type="date"]::-webkit-datetime-edit {
+  color: var(--text-white);
+}
+input[type="date"]:invalid {
+  color: var(--text-muted);
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) sepia(1) saturate(5) hue-rotate(10deg);
+  cursor: pointer;
+  opacity: 0.7;
+}
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-clear-button {
+  display: none;
+}
+input,
+button {
+  touch-action: manipulation;
+}
+.dob-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.dob-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 0.4px;
+}
+/* ── Textarea ── */
+textarea.field {
+  resize: vertical;
+  min-height: 90px;
+}
+
+/* ── Dropdown ── */
+.dropdown-wrap {
+  position: relative;
+  width: 100%;
+}
+.dropdown-btn {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  color: var(--text-white);
+  border-radius: 12px;
+  padding: 13px 16px;
+  font-family: "Barlow", sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
+  text-align: left;
+}
+.dropdown-btn:hover,
+.dropdown-btn.open {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px var(--orange-glow);
+}
+.dropdown-btn .placeholder {
+  color: var(--text-muted);
+}
+.dropdown-btn span:not(.placeholder):not(.arrow) {
+  color: var(--text-white);
+}
+.dropdown-btn .arrow {
+  color: var(--orange);
+  font-size: 11px;
+  transition: transform 0.3s;
+  flex-shrink: 0;
+}
+.dropdown-btn.open .arrow {
+  transform: rotate(180deg);
+}
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: #111;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  z-index: 100;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+  animation: fadeIn 0.18s ease;
+}
+.dropdown-menu.open {
+  display: block;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.dropdown-item {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #d1d5db;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.dropdown-item:hover {
+  background: rgba(249, 115, 22, 0.12);
+  color: var(--orange);
+}
+
+/* ── Membership Section ── */
+.membership-section {
+  margin-top: 36px;
+}
+.mt-field {
+  margin-top: 16px;
+}
+
+/* ── Agree Row ── */
+.agree-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  font-size: 13px;
+  color: #d1d5db;
+}
+.agree-row input[type="checkbox"] {
+  accent-color: var(--orange);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ── Submit Button ── */
+.submit-btn {
+  margin-top: 28px;
+  width: 100%;
+  background: var(--orange);
+  color: #000;
+  font-family: "Barlow", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border: none;
+  border-radius: 999px;
+  padding: 14px;
+  cursor: pointer;
+  transition:
+    background 0.25s,
+    transform 0.15s,
+    box-shadow 0.25s;
+  box-shadow: 0 0 28px rgba(249, 115, 22, 0.5);
+}
+.submit-btn:hover {
+  background: var(--orange-hover);
+  box-shadow: 0 0 40px rgba(249, 115, 22, 0.7);
+  transform: translateY(-1px);
+}
+.submit-btn:active {
+  transform: translateY(0);
+}
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .form-card {
+    padding: 28px 18px;
+  }
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .hero-header h1 {
+    font-size: 28px;
+  }
+  .col-full {
+    grid-column: auto;
+  }
+  .field,
+  .dropdown-btn,
+  input[type="date"] {
+    min-height: 50px;
+    font-size: 16px;
+  }
+  .submit-btn {
+    padding: 16px;
+    font-size: 17px;
+  }
+}

@@ -1,0 +1,208 @@
+/* enroll_face.css — Desktop layout */
+
+/* Force content above the hero background */
+.enroll-wrapper {
+  position: relative;
+  z-index: 10;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 50px 40px;
+  color: #fff;
+  /* pull it up slightly to overlap the hero bottom edge */
+  margin-top: -20px;
+}
+
+.enroll-title {
+  text-align: center;
+  color: #ff8c00;
+  font-size: 36px;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.enroll-subtitle {
+  text-align: center;
+  color: #aaa;
+  font-size: 15px;
+  margin: 0 0 40px;
+}
+
+/* Two-column card */
+.enroll-card {
+  display: flex;
+  gap: 48px;
+  align-items: flex-start;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,140,0,0.25);
+  border-radius: 20px;
+  padding: 40px;
+}
+
+/* Camera column */
+.camera-col {
+  flex: 1.4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: #000;
+  border: 2px solid #ff8c00;
+  border-radius: 14px;
+  overflow: hidden;
+  line-height: 0;
+}
+
+#video {
+  display: block !important;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Corner bracket decorations */
+.corner { position: absolute; width: 24px; height: 24px; }
+.corner-tl { top:12px; left:12px;  border-top:2px solid #ff8c00; border-left:2px solid #ff8c00;  border-radius:3px 0 0 0; }
+.corner-tr { top:12px; right:12px; border-top:2px solid #ff8c00; border-right:2px solid #ff8c00; border-radius:0 3px 0 0; }
+.corner-bl { bottom:12px; left:12px;  border-bottom:2px solid #ff8c00; border-left:2px solid #ff8c00;  border-radius:0 0 0 3px; }
+.corner-br { bottom:12px; right:12px; border-bottom:2px solid #ff8c00; border-right:2px solid #ff8c00; border-radius:0 0 3px 0; }
+
+.face-box {
+  position: absolute;
+  border: 2px solid #00ff88;
+  border-radius: 8px;
+  display: none;
+  pointer-events: none;
+}
+
+/* Status pill */
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border-radius: 30px;
+  font-size: 14px;
+  background: rgba(100,100,100,0.15);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #aaa;
+  transition: all 0.3s;
+}
+.status-pill.detected {
+  background: rgba(0,255,136,0.1);
+  border-color: rgba(0,255,136,0.3);
+  color: #00ff88;
+}
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #aaa;
+}
+.status-pill.detected .status-dot { background: #00ff88; }
+
+/* Controls column */
+.controls-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Steps */
+.steps-label {
+  color: #aaa;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 16px;
+}
+
+.step {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.step-num {
+  width: 28px; height: 28px; min-width: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid #555;
+  color: #aaa;
+}
+.step-num.done   { background: #ff8c00; border-color: #ff8c00; color: #000; }
+.step-num.active { background: #ff8c00; border-color: #ff8c00; color: #000; }
+
+.step-title { color: #fff; font-size: 14px; font-weight: 500; margin: 0 0 2px; }
+.step-desc  { color: #aaa; font-size: 12px; margin: 0; }
+.step-check { margin-left: auto; color: #00ff88; font-size: 16px; }
+
+.step-connector {
+  width: 1px; height: 16px;
+  background: rgba(255,255,255,0.1);
+  margin-left: 14px;
+}
+
+.divider { border-top: 1px solid rgba(255,255,255,0.08); }
+
+/* Tips box */
+.tips-box {
+  background: rgba(255,140,0,0.06);
+  border: 1px solid rgba(255,140,0,0.2);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.tips-box h4 {
+  color: #ff8c00;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 8px;
+}
+.tips-box ul {
+  color: #bbb;
+  font-size: 13px;
+  margin: 0;
+  padding-left: 16px;
+  line-height: 1.8;
+}
+
+/* Capture button */
+.capture-btn {
+  width: 100%;
+  padding: 14px;
+  background: #ff8c00;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.capture-btn:disabled { background: #444; cursor: not-allowed; }
+.capture-btn:hover:not(:disabled) { background: #e07b00; }
+
+.enroll-note {
+  color: #555;
+  font-size: 12px;
+  text-align: center;
+  margin: 0;
+}
+
+/* Mobile fallback */
+@media (max-width: 700px) {
+  .enroll-card { flex-direction: column; padding: 24px; gap: 24px; }
+  .enroll-wrapper { padding: 24px 16px; }
+  .tips-box{
+    display: none;
+  }
+}

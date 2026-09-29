@@ -1,0 +1,43 @@
+{
+  "name": "EnterGYM — Fitness Tracking & Attendance",
+  "short_name": "EnterGYM",
+  "description": "EnterGYM Bhilai — Auto GPS attendance, membership tracking, and workout logs.",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#080808",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "lang": "en",
+  "categories": ["fitness", "health", "sports"],
+  "icons": [
+    {
+      "src": "/static/images/icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/images/splash.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Check In",
+      "short_name": "Check In",
+      "description": "Mark your gym attendance",
+      "url": "/attendance?source=shortcut",
+      "icons": [{ "src": "/static/images/icon.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "My Membership",
+      "short_name": "Membership",
+      "description": "View membership & payment status",
+      "url": "/membership?source=shortcut",
+      "icons": [{ "src": "/static/images/icon.png", "sizes": "96x96" }]
+    }
+  ]
+}

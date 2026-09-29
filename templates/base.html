@@ -1,0 +1,130 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="icon"
+      type="image/png"
+      href="{% static 'images/favicons.png' %}"
+    />
+    <title>EnterGYM {% block title %}{% endblock %}</title>
+
+    <!-- Google Fonts — async, non-blocking -->
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preload"
+      id="font-inter"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+      as="style"
+    />
+    <link
+      rel="preload"
+      id="font-orbitron"
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@400;600&display=swap"
+      as="style"
+    />
+
+    <!-- PWA manifest + mobile meta tags -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="{% static 'images/icon.png' %}"
+    />
+    <link rel="manifest" href="{% static 'js/manifest.json' %}" />
+    <meta name="theme-color" content="#080808" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="EnterGYM" />
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+    <link
+      rel="preload"
+      id="css-loc-modal"
+      href="{% static 'css/loc_modal.css' %}"
+      as="style"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+      />
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@400;600&display=swap"
+      />
+      <link rel="stylesheet" href="{% static 'css/loc_modal.css' %}" />
+    </noscript>
+    {% block link %}{% endblock %} 
+    {% if request.user.is_staff and VAPID_PUBLIC_KEY %}
+    <div
+      id="vapid-meta"
+      data-key="{{ VAPID_PUBLIC_KEY }}"
+      style="display: none"
+    ></div>
+    {% endif %}
+  </head>
+
+  <body>
+    <!-- EXTRA CONTENT (MESSAGES ETC) -->
+    <div id="extra">{% block message %}{% endblock %}</div>
+    <!-- HERO SECTION -->
+    <section class="hero">
+      <!-- Background -->
+      <img
+        src="{% static 'images/Fitness.webp' %}"
+        class="hero-bg"
+        alt="Gym Background"
+      />
+      <div class="overlay"></div>
+
+      <!-- TOP BAR -->
+      <div class="topbar">
+        <div class="topbar-inner">
+          <div>EnterGYM in Bhilai, Chhattisgarh</div>
+          <div class="left-inner">Join: (+91) 7000032565</div>
+        </div>
+        <div class="divider"></div>
+      </div>
+
+      <!-- NAVBAR -->
+      <nav class="navbar hero-animate">
+        <div class="nav-inner">
+          <a href="/" class="logo">
+            <img
+              src="{% static 'images/Logo1s.png' %}"
+              alt="EnterName Gym Logo"
+              class="logo-img"
+            />
+          </a>
+        </div>
+      </nav>
+
+      <!-- HERO CONTENT -->
+      <div id="heroContent" class="hero-content">
+        <h1>{% block heading %}{% endblock %}</h1>
+      </div>
+
+      <!-- BODY CONTENT -->
+      {% block content %}{% endblock %}
+    </section>
+
+    <!-- JS -->
+    <script src="{% static 'js/base.js' %}"></script>
+
+    <!-- GYM_CONFIG — values injected automatically by context_processors.py -->
+    <script nonce="{{ request.csp_nonce }}">
+      window.GYM_CONFIG = JSON.parse("{{ GYM_CONFIG_JSON|escapejs }}");
+    </script>
+    <script src="{% static 'js/loc_permission.js' %}" defer></script>
+    <script src="{% static 'js/geo_attendance.js' %}" defer></script>
+    {% if request.user.is_staff %}
+    <script src="{% static 'js/push_subscribe.js' %}"></script>
+    {% endif %}
+  </body>
+</html>

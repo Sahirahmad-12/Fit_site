@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#080808" />
+  <title>Offline — EnterGYM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root { --orange: #ff5a00; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #080808; color: #f5f5f5;
+      font-family: "Barlow Condensed", sans-serif;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center; padding: 24px;
+    }
+    .icon {
+      font-size: 3rem; margin-bottom: 20px;
+      filter: grayscale(0.3);
+    }
+    h1 {
+      font-size: clamp(2rem, 8vw, 3.5rem);
+      font-weight: 900; text-transform: uppercase;
+      letter-spacing: -0.01em; line-height: 1;
+      margin-bottom: 12px;
+    }
+    h1 span { color: var(--orange); }
+    p {
+      color: #777; font-size: clamp(0.9rem, 2.5vw, 1rem);
+      max-width: 300px; margin: 0 auto 28px; line-height: 1.6;
+    }
+    button {
+      padding: 12px 32px;
+      background: var(--orange); border: none;
+      border-radius: 40px; color: #fff;
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 0.95rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer;
+    }
+    button:hover { background: #e65200; }
+  </style>
+</head>
+<body>
+  <div>
+    <div class="icon">📡</div>
+    <h1>You're <span>Offline</span></h1>
+    <p>No internet connection. Check your network and try again.</p>
+    <button onclick="location.reload()">Try Again</button>
+  </div>
+</body>
+</html>

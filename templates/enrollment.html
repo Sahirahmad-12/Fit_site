@@ -1,0 +1,146 @@
+{% extends "base.html" %} {% load static %} {% block title %}Enrollment for
+GYM{% endblock %} {% block link %}
+<link rel="stylesheet" href="{% static 'css/enrollment.css' %}" />
+{% endblock %} {% block heading %}
+<header class="hero-header">
+  <h1>GYM REGISTRATION FORM</h1>
+  <p>
+    Please complete this form to register for gym membership and gain access to
+    all our fitness services.
+  </p>
+</header>
+{% endblock %} {% block message %}
+<div id="message-container">
+  {% for message in messages %}
+  <div
+    class="flash-message {% if message.tags == 'success' %} success {% elif message.tags == 'error' %} error {% else %} default {% endif %}"
+  >
+    <span>{{ message }}</span>
+
+    <button class="close-btn">×</button>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %} {% block content %}
+<!-- Page Body -->
+<div class="page-body hero-animate">
+  <div class="form-card">
+    <form id="enrollForm" method="POST" action="#">
+      {% csrf_token %}
+      <h2 class="section-title">Personal Information</h2>
+
+      <div class="grid-2">
+        <input
+          class="field col-full"
+          type="text"
+          name="name"
+          placeholder="Full Name"
+          required
+        />
+        <input
+          class="field"
+          type="email"
+          name="email"
+          placeholder="Email Address"
+          required
+        />
+        <input
+          class="field"
+          type="tel"
+          name="phone"
+          value="{{user.username}}"
+          readonly
+        />
+
+        <!-- Gender -->
+        <div class="dropdown-wrap">
+          <button type="button" class="dropdown-btn" id="genderBtn">
+            <span id="selectedGender" class="placeholder">Select Gender</span>
+            <span class="arrow">▼</span>
+          </button>
+          <div class="dropdown-menu" id="genderDropdown">
+            <div class="dropdown-item" data-value="M">Male</div>
+            <div class="dropdown-item" data-value="F">Female</div>
+          </div>
+          <input type="hidden" name="gender" id="genderInput" required />
+        </div>
+      </div>
+
+      <div class="membership-section">
+        <h2 class="section-title">Membership Details</h2>
+
+        <!-- Plan -->
+        <div class="dropdown-wrap">
+          <button type="button" class="dropdown-btn" id="planBtn">
+            <span id="selectedPlan" class="placeholder"
+              >Select Membership Plan</span
+            >
+            <span class="arrow">▼</span>
+          </button>
+          <div class="dropdown-menu" id="planDropdown">
+            {% for p in plans %}
+            <div
+              class="dropdown-item plan-item"
+              data-id="{{ p.id }}"
+              data-name="{{ p.plan }}"
+              data-price="{{ p.price }}"
+            >
+              {{ p.plan }}
+              <span class="color-price"> ₹{{ p.price }} </span>
+            </div>
+            {% endfor %}
+          </div>
+          <input type="hidden" name="plan" id="planInput" required />
+        </div>
+
+        <!-- Trainer -->
+        <div class="dropdown-wrap mt-field">
+          <button type="button" class="dropdown-btn" id="trainerBtn">
+            <span id="selectedTrainer" class="placeholder"
+              >Select Personal Trainer</span
+            >
+            <span class="arrow">▼</span>
+          </button>
+          <div class="dropdown-menu" id="trainerDropdown">
+            {% for t in trainers %}
+            <div
+              class="dropdown-item trainer-item"
+              data-id="{{ t.id }}"
+              data-name="{{ t.name }}"
+            >
+              {{ t.name }}
+            </div>
+            {% endfor %}
+          </div>
+          <input type="hidden" name="trainer" id="trainerInput" />
+        </div>
+
+        <input
+          class="field mt-field"
+          type="text"
+          name="reference"
+          placeholder="Referred By (Optional)"
+        />
+
+        <textarea
+          class="field mt-field"
+          name="address"
+          placeholder="Address"
+          required
+        ></textarea>
+
+        <div class="agree-row">
+          <input type="checkbox" id="agreeCheck" required />
+          <label for="agreeCheck">I agree to gym terms and conditions.</label>
+        </div>
+      </div>
+
+      <button type="submit" id="enrollBtn" class="submit-btn">
+        Enroll Now
+      </button>
+    </form>
+  </div>
+</div>
+<script src="{% static 'js/enrollment.js' %}"></script>
+<script src="{% static 'js/messages.js' %}"></script>
+{% endblock %}

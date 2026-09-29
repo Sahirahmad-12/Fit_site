@@ -1,0 +1,193 @@
+/* ============================================================
+   Location Permission Modal
+   Add to: static/css/base.css  OR  as a separate file
+   ============================================================ */
+
+/* ── Backdrop ── */
+#loc-permission-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(2, 4, 8, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0;
+  animation: modalFadeIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+
+@keyframes modalFadeIn {
+  to { opacity: 1; }
+}
+
+/* ── Card ── */
+.loc-modal-card {
+  background: #080e18;
+  border: 1px solid rgba(0, 220, 255, 0.25);
+  border-radius: 16px;
+  padding: 36px 28px 28px;
+  max-width: 360px;
+  width: calc(100% - 40px);
+  text-align: center;
+  position: relative;
+  box-shadow:
+    0 0 0 1px rgba(0,220,255,0.08),
+    0 24px 60px rgba(0,0,0,0.6),
+    0 0 40px rgba(0,220,255,0.06);
+  transform: translateY(20px);
+  animation: modalSlideUp 0.4s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+
+@keyframes modalSlideUp {
+  to { transform: translateY(0); }
+}
+
+/* top cyan line */
+.loc-modal-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 20%; right: 20%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00dcff, transparent);
+  border-radius: 2px;
+}
+
+/* ── Icon ── */
+.loc-modal-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  display: block;
+  filter: drop-shadow(0 0 12px rgba(0,220,255,0.4));
+  animation: iconPulse 2s ease-in-out infinite;
+}
+@keyframes iconPulse {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(0,220,255,0.3)); }
+  50%       { filter: drop-shadow(0 0 20px rgba(0,220,255,0.7)); }
+}
+
+/* ── Title ── */
+.loc-modal-title {
+  font-family: 'Orbitron', 'Inter', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #00dcff;
+  margin-bottom: 12px;
+  text-shadow: 0 0 20px rgba(0,220,255,0.4);
+}
+
+/* ── Body text ── */
+.loc-modal-body {
+  font-family: 'Rajdhani', 'Inter', sans-serif;
+  font-size: 14px;
+  color: #8aa0b0;
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.loc-modal-body strong {
+  color: #c8d8e8;
+}
+
+/* ── Feature list ── */
+.loc-modal-features {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 24px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.loc-modal-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-family: 'Rajdhani', 'Inter', sans-serif;
+  font-size: 13px;
+  color: #8aa0b0;
+}
+.loc-modal-features li .feat-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.loc-modal-features li strong {
+  color: #c8d8e8;
+  display: block;
+  font-size: 13px;
+}
+
+/* ── Buttons ── */
+.loc-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-loc-allow {
+  width: 100%;
+  padding: 14px;
+  background: transparent;
+  border: 1px solid #00dcff;
+  border-radius: 8px;
+  color: #00dcff;
+  font-family: 'Orbitron', 'Inter', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(0,220,255,0.15), inset 0 0 20px rgba(0,220,255,0.04);
+}
+.btn-loc-allow:hover {
+  background: rgba(0,220,255,0.1);
+  box-shadow: 0 0 35px rgba(0,220,255,0.35), inset 0 0 30px rgba(0,220,255,0.08);
+  transform: translateY(-1px);
+}
+/* scan sweep */
+.btn-loc-allow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(0,220,255,0.15) 50%, transparent 60%);
+  transform: translateX(-100%);
+  animation: btnSweep 2.5s linear infinite;
+}
+@keyframes btnSweep { to { transform: translateX(200%); } }
+
+.btn-loc-skip {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  border: none;
+  color: #4a6070;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: color 0.2s;
+}
+.btn-loc-skip:hover { color: #8aa0b0; }
+
+/* ── Loading state ── */
+.btn-loc-allow.loading {
+  opacity: 0.7;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.btn-loc-allow.loading::after { display: none; }
+
+/* ── Privacy note ── */
+.loc-modal-privacy {
+  margin-top: 16px;
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  color: #2a3a48;
+  letter-spacing: 0.5px;
+  line-height: 1.5;
+}

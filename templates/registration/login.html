@@ -1,0 +1,77 @@
+{% extends "base.html" %} {% load static %} {% block title %}Login{% endblock%}
+{% block heading %}Login{% endblock %}
+{% block link %}
+<link rel="stylesheet" href="{% static "css/login.css" %}">
+{% endblock %}
+{% block message %}
+<div id="message-container">
+      {% for message in messages %}
+      <div
+        class="flash-message {% if message.tags == 'success' %} success {% elif message.tags == 'error' %} error {% else %} default {% endif %}"
+      >
+        <span>{{ message }}</span>
+
+        <button class="close-btn">×</button>
+      </div>
+      {% endfor %}
+</div>
+{% endblock %}
+{% block content %}
+<div class="hero-container hero-animate">
+  <form method="POST" action="/login/" class="glass-form">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.GET.next }}">
+
+    <!-- Phone Number -->
+    <div class="form-group">
+      <label>Phone Number</label>
+      <input 
+        type="tel" 
+        name="username" 
+        class="text"
+        value="{{ form.username.value|default:'' }}"
+        required
+        pattern="[0-9]{10}"
+        maxlength="10"
+        minlength="10"
+      />
+      {% if form.username.errors %}
+        <small class="error">{{ form.username.errors.0 }}</small>
+      {% endif %}
+    </div>
+
+    <!-- Password -->
+    <div class="form-group">
+      <label>Password</label>
+      <input 
+        type="password" 
+        name="password" 
+        class="text" 
+        required 
+      />
+    </div>
+
+    <p class="forget-text">
+      For password reset, please contact the
+      <a href="/contact/"> administrator.</a>
+    </p>
+
+    <button type="submit" class="submit-btn" id="signup-btn">LogIn</button>
+
+    <p class="bottom-text">
+      Don't Have an account?
+      <a href="/signup/">SignUp</a>
+    </p>
+  </form>
+</div>
+<script src="{% static 'js/messages.js' %}"></script>
+<script nonce="{{ request.csp_nonce }}" >
+  document.querySelector('.glass-form').addEventListener('submit', function () {
+    const btn = document.getElementById('signup-btn');
+    btn.disabled = true;
+    btn.textContent = 'Logging in...';
+    btn.style.opacity = '0.6';
+    btn.style.cursor = 'not-allowed';
+  });
+</script>
+{% endblock %}

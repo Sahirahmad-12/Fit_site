@@ -1,0 +1,200 @@
+{% extends "base.html" %} {% load static %} {% block title %}Contact 
+{% endblock %} {% block link %}
+<link rel="stylesheet" href="{% static 'css/contact.css' %}" />
+{% endblock %} {% block message %}
+<div id="message-container">
+  {% for message in messages %}
+  <div
+    class="flash-message {% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% else %}default{% endif %}"
+  >
+    <span>{{ message }}</span>
+    <button class="close-btn">×</button>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %} {% block content %}
+<div class="contact-container hero-animate">
+  <div class="contact-eyebrow">Contact Us</div>
+  <div class="contact-title">Get In Touch</div>
+  <div class="contact-sub">
+    We'd love to hear from you. Fill the form or reach us directly.
+  </div>
+
+  <div class="contact-grid">
+    <!-- LEFT: Form -->
+    <div class="form-section">
+      <form method="POST" class="contact-form">
+        {% csrf_token %}
+
+        <div class="field">
+          <label for="name">Full Name</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            placeholder="e.g. Rahul Sharma"
+            required
+          />
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="you@gmail.com"
+              required
+            />
+          </div>
+          <div class="field">
+            <label for="number">Phone</label>
+            <input
+              type="tel"
+              id="number"
+              name="number"
+              placeholder="+91 98765 43210"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="description">Message</label>
+          <textarea
+            id="description"
+            name="description"
+            placeholder="Tell us what you're looking for…"
+            required
+          ></textarea>
+        </div>
+
+        <button type="submit" class="submit-btn">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line x1="22" y1="2" x2="11" y2="13" />
+            <polygon points="22 2 15 22 11 13 2 9 22 2" />
+          </svg>
+          Send Message
+        </button>
+      </form>
+    </div>
+
+    <!-- RIGHT: Map + Info -->
+    <div class="right-col">
+      <div class="map-section">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d232.4594037786825!2d81.3311403871062!3d21.217947006557505!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sin!4v1776093034950!5m2!1sen!2sin"
+          allowfullscreen=""
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        >
+        </iframe>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-icon">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.18 3.37 2 2 0 0 1 3.16 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16z"
+              />
+            </svg>
+          </div>
+          <div>
+            <div class="info-label">Call Us</div>
+            <div class="info-val">(+91)&nbsp;70000&nbsp;32565</div>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-icon">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+              />
+              <polyline points="22,6 12,13 2,6" />
+            </svg>
+          </div>
+          <div>
+            <div class="info-label">Email</div>
+            <div class="info-val">entergym@gmail.com</div>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-icon">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+          </div>
+          <div>
+            <div class="info-label">Hours</div>
+            <div class="info-val">5 AM – 10 PM · Daily</div>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-icon">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+          </div>
+          <div>
+            <div class="info-label">Location</div>
+            <div class="info-val">Bhilai, Chhattisgarh</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="{% static 'js/messages.js' %}"></script>
+{% endblock %}

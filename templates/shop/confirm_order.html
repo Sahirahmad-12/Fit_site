@@ -1,0 +1,615 @@
+<!doctype html>
+{% load static %}
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Confirm Order — EnterGYM Store</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="{% static 'images/favicons.png' %}"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+
+    <style>
+      /* ── TOKENS ─────────────────────────────────────── */
+      :root {
+        --bg:          #080808;
+        --surface:     #111111;
+        --surface-2:   #181818;
+        --border:      rgba(255,255,255,.07);
+        --orange:      #ff5a00;
+        --orange-dim:  rgba(255,90,0,.10);
+        --orange-glow: rgba(255,90,0,.28);
+        --green:       #5de87c;
+        --green-bg:    #1a3d25;
+        --green-bdr:   rgba(93,232,124,.2);
+        --purple:      #6847ed;
+        --text-hi:     #f5f5f5;
+        --text-mid:    #999;
+        --text-lo:     #555;
+        --radius:      16px;
+        --radius-sm:   10px;
+        --pill:        40px;
+        --font-d:      "Barlow Condensed", sans-serif;
+        --font-b:      "Barlow", sans-serif;
+        --ease:        cubic-bezier(.4,0,.2,1);
+        --t:           .22s;
+      }
+
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        background: var(--bg);
+        color: var(--text-hi);
+        font-family: var(--font-b);
+        -webkit-font-smoothing: antialiased;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* ── NAVBAR ─────────────────────────────────────── */
+      .top-nav {
+        background: rgba(8,8,8,.92);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 0;
+        z-index: 200;
+      }
+      .nav-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 60px;
+        padding: 0 16px;
+      }
+      .nav-brand {
+        font-family: var(--font-d);
+        font-weight: 900;
+        font-size: clamp(1.1rem, 3vw, 1.5rem);
+        text-transform: uppercase;
+        text-decoration: none;
+        color: var(--text-hi);
+        white-space: nowrap;
+        line-height: 1;
+      }
+      .nav-brand .acc { color: var(--orange); }
+      .nav-back {
+        font-family: var(--font-d);
+        font-size: clamp(.65rem, 1.8vw, .78rem);
+        font-weight: 700;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        color: var(--text-mid);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: color var(--t) var(--ease);
+        white-space: nowrap;
+        padding: 4px 0;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .nav-back:hover { color: var(--text-hi); }
+
+      /* ── STEP INDICATOR ─────────────────────────────── */
+      .step-bar {
+        display: flex;
+        align-items: center;
+        gap: 0;
+        margin-bottom: clamp(24px, 4vw, 40px);
+      }
+      .step {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-family: var(--font-d);
+        font-size: .72rem;
+        font-weight: 700;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+      }
+      .step-num {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .7rem;
+        font-weight: 900;
+        flex-shrink: 0;
+      }
+      .step.done .step-num   { background: var(--surface-2); border: 1.5px solid var(--border);  color: var(--text-lo); }
+      .step.done .step-label { color: var(--text-lo); }
+      .step.active .step-num { background: var(--orange); color: #fff; }
+      .step.active .step-label { color: var(--text-hi); }
+      .step-sep {
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+        margin: 0 12px;
+        min-width: 20px;
+      }
+
+      /* ── PAGE ───────────────────────────────────────── */
+      .page {
+        padding: clamp(24px, 5vw, 56px) 0 clamp(40px, 8vw, 96px);
+      }
+      .page-eyebrow {
+        font-family: var(--font-d);
+        font-size: .7rem;
+        font-weight: 700;
+        letter-spacing: .22em;
+        text-transform: uppercase;
+        color: var(--orange);
+        margin-bottom: 8px;
+      }
+      .page-title {
+        font-family: var(--font-d);
+        font-size: clamp(2rem, 6vw, 3.2rem);
+        font-weight: 900;
+        text-transform: uppercase;
+        line-height: .95;
+        margin-bottom: clamp(24px, 4vw, 40px);
+        letter-spacing: -.01em;
+      }
+
+      /* ── CARD ───────────────────────────────────────── */
+      .card-dark {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: clamp(18px, 3vw, 28px);
+      }
+      .card-title {
+        font-family: var(--font-d);
+        font-size: .68rem;
+        font-weight: 700;
+        letter-spacing: .2em;
+        text-transform: uppercase;
+        color: var(--text-lo);
+        margin-bottom: 18px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .card-title::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+
+      /* ── PRODUCT ROW ─────────────────────────────────── */
+      .product-row {
+        display: flex;
+        gap: clamp(12px, 2.5vw, 20px);
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .product-thumb {
+        width: clamp(68px, 12vw, 88px);
+        height: clamp(68px, 12vw, 88px);
+        flex-shrink: 0;
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+      }
+      .product-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .product-info { flex: 1; min-width: 0; }
+      .product-name {
+        font-family: var(--font-d);
+        font-weight: 800;
+        font-size: clamp(1rem, 2.5vw, 1.25rem);
+        text-transform: uppercase;
+        letter-spacing: .01em;
+        margin-bottom: 6px;
+        word-break: break-word;
+      }
+      .product-meta-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .meta-chip {
+        font-family: var(--font-d);
+        font-size: .72rem;
+        font-weight: 700;
+        letter-spacing: .07em;
+        text-transform: uppercase;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 3px 10px;
+        color: var(--text-mid);
+        white-space: nowrap;
+      }
+      .meta-chip.orange {
+        border-color: rgba(255,90,0,.3);
+        color: var(--orange);
+        background: var(--orange-dim);
+      }
+
+      /* ── DELIVERY INFO ───────────────────────────────── */
+      .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: clamp(10px, 2vw, 16px);
+      }
+      @media (max-width: 400px) {
+        .info-grid { grid-template-columns: 1fr; }
+      }
+      .info-field label {
+        font-family: var(--font-d);
+        font-size: .65rem;
+        font-weight: 700;
+        letter-spacing: .18em;
+        text-transform: uppercase;
+        color: var(--text-lo);
+        display: block;
+        margin-bottom: 5px;
+      }
+      .info-value {
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 10px 14px;
+        color: var(--text-hi);
+        font-size: clamp(.82rem, 2vw, .92rem);
+        font-weight: 500;
+        word-break: break-all;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      /* ── DELIVERY BANNER ─────────────────────────────── */
+      .delivery-banner {
+        background: var(--green-bg);
+        border: 1px solid var(--green-bdr);
+        border-radius: var(--radius-sm);
+        padding: clamp(12px, 2.5vw, 16px) clamp(14px, 3vw, 20px);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-top: 16px;
+        flex-wrap: wrap;
+      }
+      .delivery-icon {
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+        background: rgba(93,232,124,.12);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        color: var(--green);
+      }
+      .delivery-text { flex: 1; min-width: 140px; }
+      .delivery-title {
+        font-family: var(--font-d);
+        font-weight: 800;
+        font-size: clamp(.88rem, 2vw, 1rem);
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        color: var(--green);
+      }
+      .delivery-sub {
+        font-family: var(--font-b);
+        font-weight: 600;
+        font-size: clamp(.78rem, 2vw, .9rem);
+        color: var(--purple);
+        margin-top: 2px;
+      }
+
+      /* ── PRICE TABLE ─────────────────────────────────── */
+      .price-table { width: 100%; }
+      .price-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 9px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: clamp(.82rem, 2vw, .9rem);
+        color: var(--text-mid);
+        gap: 8px;
+      }
+      .price-row:last-child { border-bottom: none; }
+      .price-row .val { text-align: right; white-space: nowrap; }
+      .price-row.total {
+        font-family: var(--font-d);
+        font-weight: 800;
+        font-size: clamp(1.1rem, 3vw, 1.35rem);
+        text-transform: uppercase;
+        letter-spacing: .02em;
+        color: var(--text-hi);
+        padding-top: 14px;
+      }
+      .price-row.total .val { color: var(--orange); }
+      .price-row.savings  { color: var(--green); }
+
+      /* ── PLACE BUTTON ────────────────────────────────── */
+      .btn-place {
+        width: 100%;
+        margin-top: 22px;
+        padding: clamp(13px, 2.5vw, 17px) 20px;
+        background: var(--orange);
+        border: none;
+        border-radius: var(--radius-sm);
+        color: #fff;
+        font-family: var(--font-d);
+        font-size: clamp(.82rem, 2.2vw, 1rem);
+        font-weight: 800;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        transition:
+          background var(--t) var(--ease),
+          transform var(--t) var(--ease),
+          box-shadow var(--t) var(--ease);
+        -webkit-tap-highlight-color: transparent;
+      }
+      .btn-place:hover {
+        background: #e65200;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px var(--orange-glow);
+      }
+      .btn-place:active { transform: translateY(0); }
+      .btn-place::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,.14) 0%, transparent 60%);
+        pointer-events: none;
+      }
+
+      /* ── SECURE NOTE ─────────────────────────────────── */
+      .secure-note {
+        text-align: center;
+        font-family: var(--font-d);
+        font-size: .68rem;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        color: var(--text-lo);
+        margin-top: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+
+      /* ── STICKY SIDEBAR ──────────────────────────────── */
+      .sticky-sidebar {
+        position: sticky;
+        top: 76px;
+        align-self: flex-start;
+      }
+      @media (max-width: 991px) {
+        .sticky-sidebar { position: static; }
+      }
+
+      /* ── ANIMATIONS ──────────────────────────────────── */
+      @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(18px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      .fi   { animation: fadeUp .4s var(--ease) both; }
+      .fi-1 { animation-delay: .04s; }
+      .fi-2 { animation-delay: .11s; }
+      .fi-3 { animation-delay: .18s; }
+
+      /* ── SAFE AREA ───────────────────────────────────── */
+      @supports (padding: env(safe-area-inset-left)) {
+        .nav-inner,
+        .container {
+          padding-left:  max(16px, env(safe-area-inset-left));
+          padding-right: max(16px, env(safe-area-inset-right));
+        }
+      }
+
+      /* ── MOBILE TWEAKS ───────────────────────────────── */
+      @media (max-width: 480px) {
+        :root { --radius: 14px; --radius-sm: 8px; }
+        .nav-inner { height: 52px; }
+        .sticky-sidebar { top: 68px; }
+        .page-title br { display: none; } /* single line on small phones */
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- NAVBAR -->
+    <nav class="top-nav">
+      <div class="nav-inner container">
+        <a class="nav-brand" href="{% url 'product_list' %}">
+          EnterGYM <span class="acc">Store</span>
+        </a>
+        <a class="nav-back" href="{% url 'product_detail' product.id %}">
+          <i class="bi bi-arrow-left"></i> Back
+        </a>
+      </div>
+    </nav>
+
+    <!-- MAIN -->
+    <main class="container page">
+
+      <!-- Step indicator -->
+      <div class="step-bar">
+        <div class="step done">
+          <div class="step-num"><i class="bi bi-check2"></i></div>
+          <span class="step-label">Product</span>
+        </div>
+        <div class="step-sep"></div>
+        <div class="step active">
+          <div class="step-num">2</div>
+          <span class="step-label">Confirm</span>
+        </div>
+      </div>
+
+      <p class="page-eyebrow">Step 2 of 2</p>
+      <h1 class="page-title">Confirm<br />Your Order</h1>
+
+      <div class="row gy-4 gx-lg-5">
+
+        <!-- LEFT: Product + Delivery -->
+        <div class="col-12 col-lg-7">
+
+          <!-- Product summary -->
+          <div class="card-dark fi fi-1">
+            <p class="card-title">Order Summary</p>
+            <div class="product-row">
+              <div class="product-thumb">
+                {% if product.image %}
+                  <img src="{{ product.image.url }}" alt="{{ product.name }}" />
+                {% else %}
+                  <img
+                    src="https://images.unsplash.com/photo-1596716075191-236f0df56070?q=80&w=400&auto=format&fit=crop"
+                    alt="Product"
+                  />
+                {% endif %}
+              </div>
+              <div class="product-info">
+                <div class="product-name">{{ product.name }}</div>
+                <div class="product-meta-row">
+                  {% if flavor %}
+                    <span class="meta-chip orange">{{ flavor.name }}</span>
+                  {% endif %}
+                  <span class="meta-chip">Qty: {{ quantity }}</span>
+                  <span class="meta-chip">₹{{ unit_price|floatformat:0 }} / unit</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Delivery details -->
+          <div class="card-dark fi fi-2 mt-4">
+            <p class="card-title">Delivery Details</p>
+            <div class="info-grid">
+              <div class="info-field">
+                <label>Full Name</label>
+                <div class="info-value" title="{{ enrollment.fullname }}">{{ enrollment.fullname }}</div>
+              </div>
+              <div class="info-field">
+                <label>Phone</label>
+                <div class="info-value">{{ enrollment.phone|default:"—" }}</div>
+              </div>
+              <div class="info-field">
+                <label>Email</label>
+                <div class="info-value" title="{{ enrollment.email }}">{{ enrollment.email|default:"—" }}</div>
+              </div>
+              <div class="info-field">
+                <label>Member ID</label>
+                <div class="info-value">{{ enrollment.unique_id }}</div>
+              </div>
+            </div>
+
+            <div class="delivery-banner">
+              <div class="delivery-icon"><i class="bi bi-building"></i></div>
+              <div class="delivery-text">
+                <div class="delivery-title">
+                  <i class="bi bi-lightning-fill me-1"></i> Gym Delivery
+                </div>
+                <div class="delivery-sub">
+                  EnterGYM Address · Delivered within 24 hours
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Price + Place Order -->
+        <div class="col-12 col-lg-5">
+          <div class="sticky-sidebar">
+            <div class="card-dark fi fi-3">
+              <p class="card-title">Price Breakdown</p>
+
+              <div class="price-table">
+                <div class="price-row">
+                  <span>Base Price</span>
+                  <span class="val">₹{{ product.base_price|floatformat:0 }}</span>
+                </div>
+                {% if product.discount > 0 %}
+                <div class="price-row savings">
+                  <span>Discount ({{ product.discount }}%)</span>
+                  <span class="val">− ₹{{ product.discount_amount|floatformat:0 }}</span>
+                </div>
+                {% endif %}
+                {% if flavor and flavor.price_adjustment != 0 %}
+                <div class="price-row">
+                  <span>Flavour Adjustment</span>
+                  <span class="val">{% if flavor.price_adjustment > 0 %}+{% endif %}₹{{ flavor.price_adjustment|floatformat:0 }}</span>
+                </div>
+                {% endif %}
+                <div class="price-row">
+                  <span>Quantity</span>
+                  <span class="val">× {{ quantity }}</span>
+                </div>
+                <div class="price-row" style="color:var(--green)">
+                  <span>Delivery</span>
+                  <span class="val">FREE</span>
+                </div>
+                <div class="price-row total">
+                  <span>Total</span>
+                  <span class="val">₹{{ total_price|floatformat:0 }}</span>
+                </div>
+              </div>
+
+              <form method="post" action="{% url 'place_order' %}">
+                {% csrf_token %}
+                <input type="hidden" name="product_id" value="{{ product.id }}" />
+                <input type="hidden" name="flavor"     value="{% if flavor %}{{ flavor.id }}{% else %}standard{% endif %}" />
+                <input type="hidden" name="quantity"   value="{{ quantity }}" />
+                <button type="submit" id='order-btn' class="btn-place">
+                  <i class="bi bi-lightning-fill me-2"></i> Place Order
+                </button>
+              </form>
+
+              <p class="secure-note">
+                <i class="bi bi-shield-check"></i> Secure · Cash on Delivery at Gym
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+    <script nonce="{{ request.csp_nonce }}" >
+      document.querySelector('form').addEventListener('submit', function () {
+        const btn = document.getElementById('order-btn');
+        btn.disabled = true;
+        btn.textContent = 'Ordering in...';
+        btn.style.opacity = '0.6';
+        btn.style.cursor = 'not-allowed';
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+  </body>
+</html>

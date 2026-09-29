@@ -1,0 +1,535 @@
+{% extends "base.html" %} {% load static %} {% block title %}Profile
+{% endblock %} {% block link %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}" />
+<style>
+  /* ── Upload overlay on avatar ── */
+  .avatar-wrapper {
+    position: relative;
+    width: 130px;
+    height: 130px;
+    cursor: pointer;
+  }
+
+  .avatar-wrapper .avatar-circle {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Dark overlay + camera icon on hover */
+  .avatar-overlay {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+    gap: 4px;
+  }
+
+  .avatar-wrapper:hover .avatar-overlay {
+    opacity: 1;
+  }
+
+  .avatar-overlay svg {
+    width: 28px;
+    height: 28px;
+    fill: #fff;
+  }
+
+  .avatar-overlay span {
+    font-size: 11px;
+    color: #fff;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  /* Camera badge (always visible, bottom-right) */
+  .camera-badge {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    width: 28px;
+    height: 28px;
+    background: #e05c14;
+    border: 2px solid #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: background 0.2s ease, transform 0.2s ease;
+    pointer-events: all;
+  }
+
+  .camera-badge:hover {
+    background: #c44d0f;
+    transform: scale(1.12);
+  }
+
+  .camera-badge svg {
+    width: 14px;
+    height: 14px;
+    fill: #fff;
+  }
+
+  /* Upload loading spinner overlay */
+  .upload-spinner {
+    display: none;
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+  }
+
+  .upload-spinner.active {
+    display: flex;
+  }
+
+  .spinner-ring {
+    width: 36px;
+    height: 36px;
+    border: 3px solid rgba(255,255,255,0.2);
+    border-top-color: #e05c14;
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Mobile: smaller avatar wrapper */
+  @media (max-width: 768px) {
+    .avatar-wrapper {
+      width: 90px;
+      height: 90px;
+    }
+    .camera-badge {
+      width: 24px;
+      height: 24px;
+    }
+    .camera-badge svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+</style>
+{% endblock %} {% block message %}
+<div id="message-container">
+  {% for message in messages %}
+  <div class="flash-message {{ message.tags }}">
+    <span>{{ message }}</span>
+    <button class="close-btn">×</button>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %} {% block content %}
+<div class="page hero-animate">
+  <div class="wrapper">
+    <div class="main">
+
+      <!-- ══════════════ LEFT SIDE ══════════════ -->
+      <div class="profile-left">
+
+        <!-- Avatar with upload -->
+        <div class="avatar-wrapper" id="avatar-wrapper" title="Change profile picture">
+
+          <div class="avatar-circle">
+            <span class="status-dot"></span>
+
+            {% if image_url %}
+            <img
+              id="profile-img"
+              src="{{ image_url }}"
+              width="130" height="130"
+              loading="eager" decoding="async" fetchpriority="high"
+              alt="Profile"
+              style="border-radius:50%; object-fit:cover;">
+            {% else %}
+            <div class="avatar-initial" id="avatar-initial">
+              {{ enrollment.fullname|slice:":1" }}
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Hover overlay -->
+          <div class="avatar-overlay">
+            <!-- Camera SVG -->
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 15.2A3.2 3.2 0 1 0 12 8.8a3.2 3.2 0 0 0 0 6.4z"/>
+              <path d="M9 3L7.17 5H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2
+                       2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.17L15
+                       3H9zm3 15a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
+            </svg>
+            <span>Change</span>
+          </div>
+
+          <!-- Always-visible camera badge -->
+          <div class="camera-badge" id="camera-badge" title="Upload photo">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 15.2A3.2 3.2 0 1 0 12 8.8a3.2 3.2 0 0 0 0 6.4z"/>
+              <path d="M9 3L7.17 5H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2
+                       2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.17L15
+                       3H9zm3 15a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
+            </svg>
+          </div>
+
+          <!-- Spinner (shown while uploading) -->
+          <div class="upload-spinner" id="upload-spinner">
+            <div class="spinner-ring"></div>
+          </div>
+
+        </div><!-- /.avatar-wrapper -->
+
+        <!-- Hidden upload form -->
+        <form
+          method="POST"
+          action="{% url 'upload_profile_pic' %}"
+          enctype="multipart/form-data"
+          id="pic-upload-form"
+          style="display:none;">
+          {% csrf_token %}
+          <input
+            type="file"
+            name="profile_pic"
+            id="profile-pic-input"
+            accept="image/jpeg,image/png,image/webp,image/gif">
+        </form>
+
+        {% if enrollment %}
+        <div class="member-name">{{ enrollment.fullname }}</div>
+        <div class="member-id">{{ enrollment.unique_id }}</div>
+        {% endif %}
+
+        <div class="welcome-msg">Welcome to your profile</div>
+      </div><!-- /.profile-left -->
+
+      <!-- ══════════════ RIGHT SIDE ══════════════ -->
+      <div class="info-card">
+        <div class="card-row top">
+          <div class="card-cell side">
+            <div class="cell-label">Phone Number</div>
+            <div class="cell-value orange">
+              {{ enrollment.phone|default:"Not Provided" }}
+            </div>
+          </div>
+          <div class="card-cell">
+            <div class="cell-label">Email Address</div>
+            <div class="cell-value orange">
+              {{ enrollment.email|default:user.email }}
+            </div>
+          </div>
+        </div>
+
+        <div class="card-row">
+          <div class="card-cell side">
+            <div class="cell-label">Membership Plan</div>
+            <div class="cell-value orange">
+              {{ enrollment.selectPlan|default:"Not Provided" }}
+            </div>
+          </div>
+          <div class="card-cell">
+            <div class="cell-label">Payment Status</div>
+            <div class="cell-value
+              {% if enrollment.is_expired %}red
+              {% elif enrollment.paymentStatus == 'Pending' %}red
+              {% elif enrollment.paymentStatus == 'Done' %}green
+              {% else %}default{% endif %}">
+              {% if enrollment.is_expired %}
+                Renewal Required
+              {% else %}
+                {{ enrollment.paymentStatus|default:"Not Provided" }}
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="card-row">
+          <div class="card-cell side">
+            <div class="cell-label">Date of Joining</div>
+            <div class="cell-value orange">
+              {{ enrollment.doj|date:"F d, Y"|default:"Not Provided" }}
+            </div>
+          </div>
+          <div class="card-cell">
+            <div class="cell-label">Membership Status</div>
+            {% if enrollment.is_expired %}
+            <div class="cell-value danger" style="display:flex;align-items:center;gap:10px;">
+              Expired
+              <button id="renewBtn" style="font-size:11px;padding:4px 10px;background:#ff5a00;color:#fff;
+              border:none;border-radius:4px;cursor:pointer;font-weight:700;
+              letter-spacing:.5px;white-space:nowrap;">
+              RENEW
+            </button>
+            </div>
+            {% elif days_remaining <= 7 and days_remaining >= 0 %}
+            <div class="cell-value" style="display:flex;align-items:center;gap:10px;color:#f0a500;">
+              Active ({{ enrollment.days_remaining }} days left)
+              <button id="renewBtn" style="font-size:11px;padding:4px 10px;background:#ff5a00;color:#fff;
+              border:none;border-radius:4px;cursor:pointer;font-weight:700;
+              letter-spacing:.5px;white-space:nowrap;">
+              RENEW
+            </button>
+            </div>
+            {% else %}
+            <div class="cell-value green">
+              Active ({{ enrollment.days_remaining }} days left)
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="card-row">
+          <div class="card-cell side">
+            <div class="cell-label">Trainer</div>
+            <div class="cell-value orange">
+              {{ enrollment.trainer|default:"Not Provided" }}
+            </div>
+          </div>
+          <div class="card-cell">
+            <div class="cell-label">Pending Amount</div>
+            <div class="cell-value red">
+              {{ enrollment.pendingAmount|default:"Not Provided" }}
+            </div>
+          </div>
+        </div>
+      </div><!-- /.info-card -->
+
+    </div><!-- /.main -->
+  </div><!-- /.wrapper -->
+</div><!-- /.page -->
+
+<!-- ══════════════ EXPIRY ALERT ══════════════ -->
+{% if enrollment and not is_expired and days_remaining <= 4 and days_remaining >= 0 %}
+<script nonce="{{ request.csp_nonce }}" >
+  (function () {
+    const TODAY = new Date().toDateString();
+    const STORAGE_KEY = "expiry_alert_played";
+    if (localStorage.getItem(STORAGE_KEY) === TODAY) return;
+
+    function playAlert() {
+      localStorage.setItem(STORAGE_KEY, TODAY);
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+      function beep(startTime, frequency, duration) {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(frequency, startTime);
+        gain.gain.setValueAtTime(0, startTime);
+        gain.gain.linearRampToValueAtTime(0.4, startTime + 0.05);
+        gain.gain.setValueAtTime(0.4, startTime + duration - 0.08);
+        gain.gain.linearRampToValueAtTime(0, startTime + duration);
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+      }
+
+      const now = ctx.currentTime + 0.1;
+      beep(now + 0.0, 880, 0.6);
+      beep(now + 0.8, 660, 0.6);
+      beep(now + 1.6, 880, 1.0);
+    }
+
+    try {
+      playAlert();
+    } catch (e) {
+      document.addEventListener("click", function playOnce() {
+        playAlert();
+        document.removeEventListener("click", playOnce);
+      }, { once: true });
+    }
+  })();
+</script>
+{% endif %}
+
+<!-- ══════════════ UPLOAD SCRIPT ══════════════ -->
+<script nonce="{{ request.csp_nonce }}" >
+  (function () {
+    const wrapper   = document.getElementById('avatar-wrapper');
+    const badge     = document.getElementById('camera-badge');
+    const fileInput = document.getElementById('profile-pic-input');
+    const form      = document.getElementById('pic-upload-form');
+    const spinner   = document.getElementById('upload-spinner');
+
+    const MAX_MB = 10; // reject files larger than 10 MB before even uploading
+
+    function triggerPicker() {
+      fileInput.click();
+    }
+
+    // Clicking anywhere on the avatar or the badge opens the picker
+    wrapper.addEventListener('click', triggerPicker);
+
+    // When a file is chosen — validate then submit
+    fileInput.addEventListener('change', function () {
+      if (!this.files || !this.files[0]) return;
+
+      const file = this.files[0];
+
+      // Basic client-side size guard
+      if (file.size > MAX_MB * 1024 * 1024) {
+        alert(`Please choose an image smaller than ${MAX_MB} MB.`);
+        this.value = '';
+        return;
+      }
+
+      // Show spinner over avatar while uploading
+      spinner.classList.add('active');
+
+      // Optional: preview locally before server responds
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const img = document.getElementById('profile-img');
+        const initial = document.getElementById('avatar-initial');
+        if (img) {
+          img.src = e.target.result;
+        } else if (initial) {
+          // Replace initial letter with the new image preview
+          const newImg = document.createElement('img');
+          newImg.id = 'profile-img';
+          newImg.src = e.target.result;
+          newImg.width = 130;
+          newImg.height = 130;
+          newImg.alt = 'Profile';
+          newImg.style.cssText = 'border-radius:50%; object-fit:cover; width:100%; height:100%;';
+          initial.replaceWith(newImg);
+        }
+      };
+      reader.readAsDataURL(file);
+
+      form.submit();
+    });
+  })();
+</script>
+{% if enrollment and is_expired or enrollment and days_remaining <= 7 and days_remaining >= 0 %}
+<!-- ══════════════ RENEW MODAL ══════════════ -->
+<div id="renewModal" style="
+  display:none; position:fixed; inset:0; z-index:9999;
+  background:rgba(0,0,0,0.75); align-items:center; justify-content:center;">
+
+  <div style="
+    background:#111; border:1px solid #222; border-radius:12px;
+    padding:32px 28px; width:90%; max-width:420px; position:relative;">
+
+    <!-- Close -->
+    <button id="renewModalClose" style="position:absolute;top:12px;right:16px;background:none;border:none;
+    color:#888;font-size:22px;cursor:pointer;line-height:1;">×</button>
+
+    <h3 style="margin:0 0 6px;color:#fff;font-family:'Barlow Condensed',sans-serif;
+               font-size:22px;letter-spacing:1px;">RENEW MEMBERSHIP</h3>
+    <p style="margin:0 0 20px;color:#888;font-size:13px;">
+      Renew your membership by choosing one of the plans below.
+    </p>
+
+    <form method="POST" action="{% url 'renew_membership' %}" id="renewForm">
+      {% csrf_token %}
+
+      <label style="color:#aaa;font-size:12px;font-weight:600;letter-spacing:.5px;">
+        SELECT PLAN
+      </label>
+
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;" id="planList">
+        {% for p in plans %}
+        <label
+          data-plan-label
+          style="display:flex;align-items:center;justify-content:space-between;
+                 background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;
+                 padding:12px 14px;cursor:pointer;transition:border-color .2s;">
+          <span style="display:flex;align-items:center;gap:10px;">
+            <input type="radio" name="plan" value="{{ p.id }}"
+              {% if enrollment.selectPlan.id == p.id %}checked{% endif %}
+              style="accent-color:#ff5a00;width:16px;height:16px;">
+            <span style="color:#fff;font-size:14px;font-weight:600;">{{ p.plan }}</span>
+          </span>
+          <span style="color:#ff5a00;font-size:14px;font-weight:700;">₹{{ p.price }}</span>
+        </label>
+        {% endfor %}
+      </div>
+
+      <button type="submit" id="renewSubmit" style="
+        margin-top:22px;width:100%;padding:13px;background:#ff5a00;
+        color:#fff;border:none;border-radius:8px;font-size:15px;
+        font-weight:800;letter-spacing:1px;cursor:pointer;
+        font-family:'Barlow Condensed',sans-serif;transition:background .2s;">
+        CONFIRM RENEWAL
+      </button>
+    </form>
+  </div>
+</div>
+
+<script nonce="{{ request.csp_nonce }}">
+  // ── Wire RENEW button ──
+  const renewBtn = document.getElementById('renewBtn');
+  if (renewBtn) {
+    renewBtn.addEventListener('click', function () {
+      document.getElementById('renewModal').style.display = 'flex';
+    });
+  }
+
+  // ── Close button ──
+  document.getElementById('renewModalClose').addEventListener('click', function () {
+    document.getElementById('renewModal').style.display = 'none';
+  });
+
+  // ── Close on backdrop click ──
+  document.getElementById('renewModal').addEventListener('click', function (e) {
+    if (e.target === this) this.style.display = 'none';
+  });
+
+  // ── Plan label hover + selection highlight ──
+  const planLabels = document.querySelectorAll('[data-plan-label]');
+
+  function updateBorders() {
+    planLabels.forEach(function (label) {
+      const inp = label.querySelector('input[type="radio"]');
+      label.style.borderColor = inp && inp.checked ? '#ff5a00' : '#2a2a2a';
+    });
+  }
+
+  planLabels.forEach(function (label) {
+    label.addEventListener('mouseenter', function () {
+      this.style.borderColor = '#ff5a00';
+    });
+    label.addEventListener('mouseleave', function () {
+      const inp = this.querySelector('input[type="radio"]');
+      this.style.borderColor = inp && inp.checked ? '#ff5a00' : '#2a2a2a';
+    });
+    const radio = label.querySelector('input[type="radio"]');
+    if (radio) {
+      radio.addEventListener('change', updateBorders);
+    }
+  });
+
+  // Set initial border for pre-selected plan
+  updateBorders();
+
+  // ── Submit button hover ──
+  const renewSubmit = document.getElementById('renewSubmit');
+  renewSubmit.addEventListener('mouseenter', function () {
+    this.style.background = '#e04e00';
+  });
+  renewSubmit.addEventListener('mouseleave', function () {
+    this.style.background = '#ff5a00';
+  });
+
+  // ── Prevent double-submit ──
+  document.getElementById('renewForm').addEventListener('submit', function () {
+    renewSubmit.textContent = 'Processing...';
+    renewSubmit.disabled = true;
+  });
+</script>
+{% endif %}
+
+<script src="{% static 'js/messages.js' %}"></script>
+{% endblock %}

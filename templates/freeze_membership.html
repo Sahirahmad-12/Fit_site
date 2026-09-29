@@ -1,0 +1,836 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Freeze Membership — EnterGYM</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #080808;
+      --surface:   #111111;
+      --card:      #181818;
+      --border:    #2a2a2a;
+      --accent:    #ff5a00;
+      --accent-lo: rgba(255,90,0,.12);
+      --accent-md: rgba(255,90,0,.25);
+      --text:      #f0f0f0;
+      --muted:     #888;
+      --danger:    #ff4444;
+      --success:   #22c55e;
+      --warning:   #f97316;
+      --ice:       #38bdf8;
+      --ice-lo:    rgba(56,189,248,.12);
+      --ice-md:    rgba(56,189,248,.30);
+      --radius:    10px;
+      --font:      'Barlow Condensed', 'Segoe UI', sans-serif;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      letter-spacing: .02em;
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 13px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .topbar a.back {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-shrink: 0;
+      transition: color .2s;
+    }
+    .topbar a.back:hover { color: var(--text); }
+    .topbar a.back svg { width: 15px; height: 15px; }
+    .topbar .title {
+      font-size: clamp(16px, 3.5vw, 22px);
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .topbar .title span { color: var(--ice); }
+    .topbar .badge {
+      margin-left: auto;
+      background: var(--ice-lo);
+      border: 1px solid var(--ice-md);
+      color: var(--ice);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .10em;
+      padding: 3px 9px;
+      border-radius: 20px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* ── Page ── */
+    .page { max-width: 1160px; margin: 0 auto; padding: 24px 16px 60px; }
+
+    /* ── Info banner ── */
+    .info-banner {
+      background: var(--ice-lo);
+      border: 1px solid var(--ice-md);
+      border-left: 4px solid var(--ice);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--ice);
+      margin-bottom: 22px;
+      line-height: 1.65;
+    }
+    .info-banner strong { color: #fff; }
+
+    /* ── Flash messages ── */
+    .messages { list-style: none; margin-bottom: 18px; }
+    .messages li {
+      padding: 11px 16px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+    .messages li.success { background: rgba(34,197,94,.12); border: 1px solid rgba(34,197,94,.3); color: var(--success); }
+    .messages li.error   { background: rgba(255,68,68,.10);  border: 1px solid rgba(255,68,68,.3);  color: var(--danger); }
+
+    /* ── Search row ── */
+    .search-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 22px;
+      align-items: center;
+    }
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+      max-width: 380px;
+    }
+    .search-wrap svg {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 15px;
+      color: var(--muted);
+      pointer-events: none;
+    }
+    .search-wrap input {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 15px;
+      padding: 10px 13px 10px 38px;
+      outline: none;
+      transition: border-color .2s;
+      letter-spacing: .06em;
+    }
+    .search-wrap input::placeholder { color: var(--muted); font-size: 13px; }
+    .search-wrap input:focus { border-color: var(--ice); }
+    .btn-clear-search {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: var(--radius);
+      padding: 10px 16px;
+      font-family: var(--font);
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: all .2s;
+      display: inline-flex;
+      align-items: center;
+    }
+    .btn-clear-search:hover { border-color: var(--text); color: var(--text); }
+    .search-info {
+      font-size: 13px;
+      color: var(--muted);
+      width: 100%;
+    }
+    .search-info strong { color: var(--text); }
+
+    /* ══════════════════════════════════════════
+       DESKTOP TABLE  (≥ 768px)
+    ══════════════════════════════════════════ */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    thead { background: #141414; border-bottom: 1px solid var(--border); }
+    thead th {
+      padding: 13px 15px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #1e1e1e; }
+    td { padding: 13px 15px; vertical-align: middle; }
+
+    /* ══════════════════════════════════════════
+       MOBILE CARDS  (< 768px)
+    ══════════════════════════════════════════ */
+    .cards-list { display: none; flex-direction: column; gap: 12px; }
+
+    .member-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: #141414;
+      border-bottom: 1px solid var(--border);
+      gap: 10px;
+    }
+    .card-header-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .card-name { font-weight: 700; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-phone { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+    .card-body {
+      padding: 12px 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 16px;
+    }
+    .card-field { display: flex; flex-direction: column; gap: 2px; }
+    .card-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .card-value { font-size: 13px; font-weight: 600; }
+
+    .card-footer {
+      padding: 12px 14px;
+      border-top: 1px solid var(--border);
+      background: #111;
+    }
+    .card-footer-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .freeze-form-card {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* ── Shared pills / tags ── */
+    .uid {
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--accent-lo);
+      color: var(--accent);
+      border: 1px solid var(--accent-md);
+      border-radius: 6px;
+      padding: 3px 8px;
+      letter-spacing: .10em;
+      flex-shrink: 0;
+    }
+    .name-cell { font-weight: 600; font-size: 15px; }
+    .sub-text  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    .plan-pill {
+      font-size: 12px;
+      background: #222;
+      border: 1px solid #333;
+      color: #ccc;
+      padding: 3px 9px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .due-date { font-size: 13px; white-space: nowrap; }
+    .due-date.expired  { color: var(--danger); }
+    .due-date.expiring { color: var(--warning); }
+    .due-date.ok       { color: var(--success); }
+
+    .due-tag {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 5px;
+    }
+    .due-tag.expired  { background: rgba(255,68,68,.15);  color: var(--danger); }
+    .due-tag.expiring { background: rgba(249,115,22,.15); color: var(--warning); }
+    .due-tag.frozen   { background: var(--ice-lo);        color: var(--ice); }
+
+    .pending-0   { color: var(--success); font-weight: 600; font-size: 13px; }
+    .pending-amt { color: var(--warning); font-weight: 600; font-size: 13px; }
+
+    /* ── Freeze input + button ── */
+    .freeze-input {
+      width: 80px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 16px;
+      font-weight: 600;
+      padding: 8px 10px;
+      text-align: center;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      -moz-appearance: textfield;
+    }
+    .freeze-input::-webkit-inner-spin-button,
+    .freeze-input::-webkit-outer-spin-button { display: none; }
+    .freeze-input:focus { border-color: var(--ice); box-shadow: 0 0 0 2px var(--ice-lo); }
+
+    .btn-freeze {
+      flex: 1;
+      background: var(--ice-lo);
+      border: 1px solid var(--ice-md);
+      color: var(--ice);
+      border-radius: 8px;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: 8px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .btn-freeze:hover  { background: var(--ice-md); border-color: var(--ice); }
+    .btn-freeze:active { transform: scale(.97); }
+    .btn-freeze svg    { width: 13px; flex-shrink: 0; }
+
+    .freeze-form { display: flex; gap: 8px; align-items: center; }
+
+    /* ── Empty state ── */
+    .empty {
+      text-align: center;
+      padding: 56px 20px;
+      color: var(--muted);
+    }
+    .empty svg { width: 44px; margin-bottom: 12px; opacity: .35; display: block; margin-inline: auto; }
+    .empty p { font-size: 15px; }
+
+    /* ── Pagination ── */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 26px;
+    }
+    .pagination a, .pagination span {
+      display: inline-block;
+      padding: 7px 13px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      transition: all .2s;
+    }
+    .pagination a:hover { border-color: var(--ice); color: var(--ice); }
+    .pagination span.current {
+      background: var(--ice-lo);
+      border-color: var(--ice-md);
+      color: var(--ice);
+    }
+
+    /* ── Confirm Modal ── */
+    .modal-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.80);
+      z-index: 200;
+      align-items: flex-end;    /* sheet from bottom on mobile */
+      justify-content: center;
+      padding: 0;
+    }
+    .modal-bg.open { display: flex; }
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--ice);
+      border-radius: var(--radius) var(--radius) 0 0;
+      padding: 28px 22px 32px;
+      width: 100%;
+      max-width: 480px;
+      animation: slideUp .22s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+    .modal-handle {
+      width: 36px; height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 0 auto 20px;
+    }
+    .modal h3 {
+      font-size: 18px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 5px;
+      color: var(--ice);
+    }
+    .modal .modal-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 18px;
+      line-height: 1.6;
+    }
+    .modal-detail {
+      background: #111;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .modal-field { display: flex; flex-direction: column; gap: 2px; }
+    .modal-field span { font-size: 10px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+    .modal-field strong { font-size: 15px; }
+    .modal-field.full { grid-column: 1 / -1; }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .btn-cancel {
+      flex: 1;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 8px;
+      font-family: var(--font);
+      font-size: 15px;
+      padding: 11px 20px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .btn-cancel:hover { border-color: var(--text); color: var(--text); }
+    #confirm-form { flex: 2; display: flex; }
+    .btn-confirm {
+      flex: 1;
+      background: var(--ice);
+      border: none;
+      color: #000;
+      border-radius: 8px;
+      font-family: var(--font);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: 11px 20px;
+      cursor: pointer;
+      transition: opacity .2s;
+      width: 100%;
+    }
+    .btn-confirm:hover { opacity: .88; }
+
+    /* ══════════════════════════════════════════
+       RESPONSIVE BREAKPOINTS
+    ══════════════════════════════════════════ */
+
+    /* Tablet & up — modal as centered dialog */
+    @media (min-width: 600px) {
+      .modal-bg { align-items: center; padding: 16px; }
+      .modal { border-radius: var(--radius); border-top: 3px solid var(--ice); }
+      .modal-handle { display: none; }
+    }
+
+    /* Mobile — hide table, show cards */
+    @media (max-width: 767px) {
+      .page { padding: 18px 12px 60px; }
+      .table-wrap { display: none; }
+      .cards-list  { display: flex; }
+
+      .search-wrap { max-width: 100%; }
+      .search-info { order: 3; }
+
+      .topbar { padding: 11px 14px; gap: 10px; }
+      .topbar a.back span { display: none; } /* show only arrow on very small */
+    }
+
+    /* Desktop — show table, hide cards */
+    @media (min-width: 768px) {
+      .table-wrap { display: block; }
+      .cards-list  { display: none !important; }
+      .page { padding: 28px 20px 60px; }
+    }
+
+    /* Large desktop */
+    @media (min-width: 1024px) {
+      .page { padding: 32px 24px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Top bar ── -->
+<div class="topbar">
+  <a href="/" class="back">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+    </svg>
+    <span>Admin</span>
+  </a>
+  <div class="title">❄️ <span></span> Membership</div>
+  <div class="badge">Staff Only</div>
+</div>
+
+<!-- ── Page ── -->
+<div class="page">
+
+  <!-- Info banner -->
+  <div class="info-banner">
+    <strong>How it works:</strong> Enter the number of days a member was absent (travel, medical, etc.) and hit Freeze. Their due date gets extended by exactly that many days — no plan change, no extra charge.
+  </div>
+
+  <!-- Flash messages -->
+  {% if messages %}
+  <ul class="messages">
+    {% for msg in messages %}
+    <li class="{{ msg.tags }}">{{ msg }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  <!-- Search -->
+  <div class="search-row">
+    <form method="get" action="" style="display:contents">
+      <div class="search-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
+        </svg>
+        <input
+          type="text"
+          name="q"
+          placeholder="Search by Member ID (e.g. 4821)"
+          value="{{ query }}"
+          autocomplete="off"
+          inputmode="numeric"
+          maxlength="4"
+        />
+      </div>
+      {% if query %}
+      <a href="{% url 'freeze_membership' %}" class="btn-clear-search">✕ Clear</a>
+      {% endif %}
+    </form>
+    <span class="search-info">
+      Showing <strong>{{ page_obj.paginator.count }}</strong> member{{ page_obj.paginator.count|pluralize }}{% if query %} matching <strong>#{{ query }}</strong>{% endif %}
+    </span>
+  </div>
+
+  {% if page_obj.object_list %}
+
+  <!-- ══════════════════════════════════════
+       DESKTOP TABLE
+  ══════════════════════════════════════ -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Member ID</th>
+          <th>Name</th>
+          <th>Plan</th>
+          <th>Due Date</th>
+          <th>Pending ₹</th>
+          <th>Extend By (Days)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in page_obj.object_list %}
+        <tr>
+          <td><span class="uid">{{ row.unique_id }}</span></td>
+          <td>
+            <div class="name-cell">{{ row.fullname }}</div>
+            <div class="sub-text">{{ row.phone }}</div>
+          </td>
+          <td><span class="plan-pill">{{ row.selectPlan.plan }}</span></td>
+          <td>
+            <div class="due-date {% if row.is_expired %}expired{% elif row.days_remaining <= 5 %}expiring{% else %}ok{% endif %}">
+              {{ row.DueDate|date:"d M Y" }}
+              {% if row.is_expired %}
+                <span class="due-tag expired">Expired</span>
+              {% elif row.days_remaining <= 5 %}
+                <span class="due-tag expiring">{{ row.days_remaining }}d left</span>
+              {% endif %}
+            </div>
+          </td>
+          <td>
+            {% if row.pendingAmount == 0 %}
+              <span class="pending-0">✓ Paid</span>
+            {% else %}
+              <span class="pending-amt">₹{{ row.pendingAmount }}</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="freeze-form">
+              <input type="number" min="1" max="365" class="freeze-input" placeholder="days" data-days-input/>
+            <button class="btn-freeze" type="button"
+            data-id="{{ row.id }}" data-uid="{{ row.unique_id }}"
+            data-name="{{ row.fullname }}" data-due="{{ row.DueDate|date:'d M Y' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1M4.22 4.22l.707.707m12.728 12.728.707.707M3 12h1m16 0h1M4.22 19.78l.707-.707M18.364 5.636l.707-.707"/>
+                </svg>
+                Freeze
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       MOBILE CARDS
+  ══════════════════════════════════════ -->
+  <div class="cards-list">
+    {% for row in page_obj.object_list %}
+    <div class="member-card">
+      <div class="card-header">
+        <div class="card-header-left">
+          <span class="uid">{{ row.unique_id }}</span>
+          <div>
+            <div class="card-name">{{ row.fullname }}</div>
+            <div class="card-phone">{{ row.phone }}</div>
+          </div>
+        </div>
+        <span class="plan-pill">{{ row.selectPlan.plan }}</span>
+      </div>
+
+      <div class="card-body">
+        <div class="card-field">
+          <span class="card-label">Due Date</span>
+          <div class="due-date {% if row.is_expired %}expired{% elif row.days_remaining <= 5 %}expiring{% else %}ok{% endif %}">
+            {{ row.DueDate|date:"d M Y" }}
+            {% if row.is_expired %}
+              <span class="due-tag expired">Expired</span>
+            {% elif row.days_remaining <= 5 %}
+              <span class="due-tag expiring">{{ row.days_remaining }}d left</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="card-field">
+          <span class="card-label">Pending</span>
+          {% if row.pendingAmount == 0 %}
+            <span class="pending-0">✓ Paid</span>
+          {% else %}
+            <span class="pending-amt">₹{{ row.pendingAmount }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <div class="card-footer-label">Extend membership by</div>
+        <div class="freeze-form-card">
+          <input type="number" min="1" max="365" class="freeze-input" placeholder="days" data-days-input/>
+        <button class="btn-freeze" type="button"
+        data-id="{{ row.id }}" data-uid="{{ row.unique_id }}"
+        data-name="{{ row.fullname }}" data-due="{{ row.DueDate|date:'d M Y' }}">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1M4.22 4.22l.707.707m12.728 12.728.707.707M3 12h1m16 0h1M4.22 19.78l.707-.707M18.364 5.636l.707-.707"/>
+            </svg>
+            Freeze
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <!-- Empty state works for both layouts -->
+  <div class="table-wrap">
+    <div class="empty">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35"/>
+      </svg>
+      <p>No member found{% if query %} for ID <strong>#{{ query }}</strong>{% endif %}.</p>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Pagination -->
+  {% if page_obj.has_other_pages %}
+  <div class="pagination">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">← Prev</a>
+    {% endif %}
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+        <span class="current">{{ num }}</span>
+      {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+        <a href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}">Next →</a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+</div><!-- /page -->
+
+<!-- ── Confirm Modal ── -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>❄️ Confirm Freeze</h3>
+    <p class="modal-sub">Due date will be extended by the number of days you entered. This <strong>cannot be undone</strong>.</p>
+    <div class="modal-detail">
+      <div class="modal-field full">
+        <span>Member</span>
+        <strong id="m-name">—</strong>
+      </div>
+      <div class="modal-field">
+        <span>Member ID</span>
+        <strong id="m-uid">—</strong>
+      </div>
+      <div class="modal-field">
+        <span>Current Due Date</span>
+        <strong id="m-due">—</strong>
+      </div>
+      <div class="modal-field full">
+        <span>Extending by</span>
+        <strong id="m-days" style="color:var(--ice); font-size:20px;">—</strong>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" type="button">Cancel</button>
+      <form id="confirm-form" method="post" action="{% url 'freeze_membership_apply' %}">
+        {% csrf_token %}
+        <input type="hidden" name="enrollment_id" id="f-enrollment-id"/>
+        <input type="hidden" name="days"          id="f-days"/>
+        {% if query %}<input type="hidden" name="q" value="{{ query }}"/>{% endif %}
+        <button type="submit" class="btn-confirm">✓ Confirm</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script nonce="{{ request.csp_nonce }}">
+  function openConfirm(btn) {
+  const enrollId  = btn.dataset.id;
+  const uid       = btn.dataset.uid;
+  const name      = btn.dataset.name;
+  const dueDate   = btn.dataset.due;
+
+  // Find the days input that's a sibling within the same freeze-form / freeze-form-card
+  const container = btn.closest('.freeze-form, .freeze-form-card');
+  const daysInput = container.querySelector('[data-days-input]');
+  const days = parseInt(daysInput.value, 10);
+
+  if (!days || days < 1 || days > 365) {
+    daysInput.focus();
+    daysInput.style.borderColor = 'var(--danger)';
+    daysInput.style.boxShadow   = '0 0 0 3px rgba(255,68,68,.20)';
+    setTimeout(() => {
+      daysInput.style.borderColor = '';
+      daysInput.style.boxShadow   = '';
+    }, 1600);
+    return;
+  }
+
+  document.getElementById('m-name').textContent = name;
+  document.getElementById('m-uid').textContent  = '#' + uid;
+  document.getElementById('m-due').textContent  = dueDate;
+  document.getElementById('m-days').textContent = days + ' day' + (days === 1 ? '' : 's');
+  document.getElementById('f-enrollment-id').value = enrollId;
+  document.getElementById('f-days').value           = days;
+
+  document.getElementById('modal').classList.add('open');
+}
+
+  function closeConfirm() {
+    document.getElementById('modal').classList.remove('open');
+  }
+
+  // Delegate Freeze button clicks (replaces inline onclick, CSP-safe)
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.btn-freeze');
+    if (btn) openConfirm(btn);
+
+    const cancelBtn = e.target.closest('.btn-cancel');
+    if (cancelBtn) closeConfirm();
+  });
+
+  document.getElementById('modal').addEventListener('click', function(e) {
+    if (e.target === this) closeConfirm();
+  });
+
+  let touchStartY = 0;
+  document.querySelector('.modal').addEventListener('touchstart', e => {
+    touchStartY = e.touches[0].clientY;
+  });
+  document.querySelector('.modal').addEventListener('touchend', e => {
+    if (e.changedTouches[0].clientY - touchStartY > 60) closeConfirm();
+  });
+
+  const searchInput = document.querySelector('input[name="q"]');
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      this.value = this.value.replace(/\D/g, '').slice(0, 4);
+      if (this.value.length === 4) this.closest('form').submit();
+    });
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1425 @@
+<!doctype html>
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EnterGYM — Download App</title>
+    <link rel="icon" type="image/png" href="{% static 'images/favicons.png' %}">
+    <!-- PWA manifest -->
+    <link rel="manifest" href="{% static 'js/manifest.json' %}">
+    <meta name="theme-color" content="#080808" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <!-- iOS PWA meta -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="EnterGYM" />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/static/images/icon.png"
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+
+    <style>
+      /* ── TOKENS ── */
+      :root {
+        --bg: #080808;
+        --surface: #111111;
+        --surface-2: #1a1a1a;
+        --border: rgba(255, 255, 255, 0.06);
+        --orange: #ff5a00;
+        --text-hi: #f5f5f5;
+        --text-lo: #555;
+        --text-mid: #999;
+        --radius-card: 18px;
+        --radius-btn: 40px;
+        --font-display: "Barlow Condensed", sans-serif;
+        --font-body: "Barlow", sans-serif;
+        --t: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+        --nav-h: 60px;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text-hi);
+        font-family: var(--font-body);
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+        min-height: 100vh;
+      }
+
+      /* ── NAV ── */
+      .store-nav {
+        position: sticky;
+        top: 0;
+        z-index: 200;
+        height: var(--nav-h);
+        background: rgba(8, 8, 8, 0.94);
+        backdrop-filter: blur(14px);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+      }
+      .nav-inner {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 clamp(16px, 4vw, 40px);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .nav-brand {
+        font-family: var(--font-display);
+        font-weight: 900;
+        font-size: clamp(1.1rem, 3vw, 1.5rem);
+        text-transform: uppercase;
+        text-decoration: none;
+        color: var(--text-hi);
+        letter-spacing: -0.01em;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: color var(--t);
+      }
+      .nav-brand .acc {
+        color: var(--orange);
+      }
+      .nav-brand .back-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        flex-shrink: 0;
+        transition: background var(--t);
+      }
+      .nav-brand:hover .back-icon {
+        background: rgba(255, 90, 0, 0.15);
+      }
+
+      /* ── HERO ── */
+      .page-header {
+        position: relative;
+        padding: clamp(48px, 10vw, 110px) 0 clamp(40px, 8vw, 80px);
+        text-align: center;
+        overflow: hidden;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: clamp(28px, 5vw, 64px);
+      }
+      .page-header::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(
+            ellipse 70% 60% at 50% 0%,
+            rgba(255, 90, 0, 0.13) 0%,
+            transparent 70%
+          ),
+          url("https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=1920&auto=format&fit=crop")
+            center 30% / cover no-repeat;
+        opacity: 0.45;
+        z-index: 0;
+      }
+      .page-header::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          to bottom,
+          rgba(8, 8, 8, 0.55) 0%,
+          rgba(8, 8, 8, 0.97) 100%
+        );
+        z-index: 1;
+      }
+      .header-inner {
+        position: relative;
+        z-index: 2;
+        padding: 0 clamp(16px, 4vw, 40px);
+        max-width: 640px;
+        margin: 0 auto;
+      }
+      .header-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-family: var(--font-display);
+        font-size: clamp(0.68rem, 1.8vw, 0.82rem);
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--orange);
+        margin-bottom: clamp(10px, 2vw, 20px);
+        padding: 6px 16px;
+        border: 1px solid rgba(255, 90, 0, 0.3);
+        border-radius: var(--radius-btn);
+        background: rgba(255, 90, 0, 0.07);
+      }
+      .page-header h1 {
+        font-family: var(--font-display);
+        font-weight: 900;
+        font-size: clamp(2.2rem, 8vw, 5rem);
+        line-height: 0.92;
+        letter-spacing: -0.01em;
+        text-transform: uppercase;
+        margin-bottom: clamp(10px, 2vw, 20px);
+      }
+      .page-header h1 .accent {
+        color: var(--orange);
+      }
+      .page-header p {
+        color: var(--text-mid);
+        font-size: clamp(0.88rem, 2.2vw, 1.05rem);
+        max-width: 380px;
+        margin: 0 auto;
+        line-height: 1.65;
+      }
+
+      /* ── MAIN ── */
+      .page-main {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 clamp(14px, 4vw, 40px) clamp(48px, 6vw, 80px);
+      }
+
+      /* ── SECTION LABEL ── */
+      .section-label {
+        font-family: var(--font-display);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--text-lo);
+        margin-bottom: clamp(16px, 3vw, 36px);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .section-label::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+
+      /* ── APP CARD ── */
+      .app-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-card);
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        margin-bottom: clamp(28px, 5vw, 60px);
+        animation: fadeUp 0.45s ease both;
+      }
+      @media (max-width: 680px) {
+        .app-card {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* ── APP CARD VISUAL ── */
+      .app-card-visual {
+        position: relative;
+        background: #0d0d0d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        border-right: 1px solid var(--border);
+        min-height: 320px;
+        padding: 40px 20px;
+      }
+      @media (max-width: 680px) {
+        .app-card-visual {
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+          min-height: 200px;
+          padding: 28px 20px;
+        }
+      }
+      .app-card-visual::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          ellipse 80% 80% at 50% 50%,
+          rgba(255, 90, 0, 0.08) 0%,
+          transparent 70%
+        );
+      }
+
+      /* ── PHONE MOCKUP ── */
+      .phone-wrap {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .phone-body {
+        width: clamp(100px, 18vw, 130px);
+        height: clamp(200px, 36vw, 256px);
+        border: 2px solid rgba(255, 255, 255, 0.12);
+        border-radius: 28px;
+        background: #080808;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow:
+          0 0 60px rgba(255, 90, 0, 0.12),
+          0 24px 48px rgba(0, 0, 0, 0.6);
+      }
+      @media (max-width: 680px) {
+        .phone-body {
+          width: 90px;
+          height: 178px;
+          border-radius: 20px;
+        }
+      }
+      .phone-notch {
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 32px;
+        height: 5px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+      }
+      .phone-screen {
+        width: calc(100% - 18px);
+        height: calc(100% - 28px);
+        border-radius: 20px;
+        background: #0d0d0d;
+        border: 1px solid rgba(255, 90, 0, 0.15);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 6px;
+        overflow: hidden;
+        position: relative;
+      }
+      @media (max-width: 680px) {
+        .phone-screen {
+          border-radius: 14px;
+          gap: 6px;
+        }
+      }
+      .phone-scan {
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 90, 0, 0.5),
+          transparent
+        );
+        animation: scan 2.8s linear infinite;
+      }
+      @keyframes scan {
+        0% {
+          top: 0;
+          opacity: 1;
+        }
+        85% {
+          top: 100%;
+          opacity: 0.6;
+        }
+        100% {
+          top: 100%;
+          opacity: 0;
+        }
+      }
+      .phone-icon {
+        width: clamp(36px, 6vw, 50px);
+        height: clamp(36px, 6vw, 50px);
+        border-radius: 12px;
+        background: rgba(255, 90, 0, 0.12);
+        border: 1px solid rgba(255, 90, 0, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: clamp(1rem, 2.5vw, 1.4rem);
+        color: var(--orange);
+      }
+      .phone-app-label {
+        font-family: var(--font-display);
+        font-size: clamp(7px, 1.5vw, 9px);
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.4);
+      }
+      .phone-app-ver {
+        font-family: var(--font-display);
+        font-size: clamp(6px, 1.2vw, 8px);
+        letter-spacing: 1px;
+        color: rgba(255, 90, 0, 0.6);
+      }
+
+      /* ── APP CARD INFO ── */
+      .app-card-info {
+        padding: clamp(20px, 3.5vw, 44px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: clamp(14px, 2.5vw, 20px);
+      }
+      .app-name {
+        font-family: var(--font-display);
+        font-size: clamp(1.6rem, 5vw, 2.8rem);
+        font-weight: 900;
+        letter-spacing: -0.01em;
+        text-transform: uppercase;
+        line-height: 1;
+      }
+      .app-name .acc {
+        color: var(--orange);
+      }
+
+      .badge-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+      }
+      .pill {
+        font-family: var(--font-display);
+        font-size: clamp(0.65rem, 1.5vw, 0.72rem);
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 4px 12px;
+        border-radius: var(--radius-btn);
+      }
+      .pill-orange {
+        background: rgba(255, 90, 0, 0.1);
+        border: 1px solid rgba(255, 90, 0, 0.3);
+        color: var(--orange);
+      }
+      .pill-green {
+        background: rgba(93, 232, 124, 0.08);
+        border: 1px solid rgba(93, 232, 124, 0.2);
+        color: #5de87c;
+      }
+      .pill-gray {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--border);
+        color: var(--text-mid);
+      }
+      .pill-blue {
+        background: rgba(100, 160, 255, 0.08);
+        border: 1px solid rgba(100, 160, 255, 0.2);
+        color: #64a0ff;
+      }
+
+      .feature-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: clamp(7px, 1.5vw, 9px);
+      }
+      .feature-list li {
+        font-size: clamp(0.85rem, 2vw, 1rem);
+        color: var(--text-mid);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        line-height: 1.4;
+      }
+      .feature-list li i {
+        color: var(--orange);
+        font-size: 0.85rem;
+        flex-shrink: 0;
+      }
+
+      /* ── BUTTONS ── */
+      .btn-group-dl {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+      }
+      .btn-download {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: clamp(11px, 2vw, 14px) clamp(20px, 3vw, 32px);
+        background: var(--orange);
+        border: none;
+        border-radius: var(--radius-btn);
+        color: #fff;
+        font-family: var(--font-display);
+        font-size: clamp(0.8rem, 2vw, 0.95rem);
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        text-decoration: none;
+        cursor: pointer;
+        transition:
+          background var(--t),
+          transform var(--t),
+          box-shadow var(--t);
+        white-space: nowrap;
+      }
+      .btn-download:hover {
+        background: #e65200;
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(255, 90, 0, 0.4);
+      }
+      .btn-download:active {
+        transform: translateY(0);
+      }
+      .btn-download:disabled,
+      .btn-download[disabled] {
+        opacity: 0.45;
+        pointer-events: none;
+      }
+
+      .btn-pwa {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: clamp(10px, 2vw, 13px) clamp(18px, 2.5vw, 28px);
+        background: transparent;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-btn);
+        color: var(--text-mid);
+        font-family: var(--font-display);
+        font-size: clamp(0.78rem, 1.8vw, 0.9rem);
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        text-decoration: none;
+        white-space: nowrap;
+        cursor: pointer;
+        transition:
+          color var(--t),
+          border-color var(--t),
+          background var(--t);
+      }
+      .btn-pwa:hover {
+        color: var(--text-hi);
+        border-color: rgba(255, 255, 255, 0.18);
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      /* hidden by default, shown by JS */
+      #pwa-install-btn {
+        display: none;
+      }
+
+      @media (max-width: 400px) {
+        .btn-group-dl {
+          flex-direction: column;
+        }
+        .btn-download,
+        .btn-pwa {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+
+      /* ── TABS ── */
+      .platform-tabs {
+        display: flex;
+        gap: 4px;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-btn);
+        padding: 4px;
+        width: fit-content;
+      }
+      .tab-btn {
+        font-family: var(--font-display);
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 7px 18px;
+        border: none;
+        border-radius: var(--radius-btn);
+        background: transparent;
+        color: var(--text-mid);
+        cursor: pointer;
+        transition:
+          background var(--t),
+          color var(--t);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .tab-btn.active {
+        background: var(--orange);
+        color: #fff;
+      }
+      .tab-btn:not(.active):hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-hi);
+      }
+
+      /* ── STEPS ── */
+      .steps-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: clamp(10px, 2vw, 20px);
+        margin-bottom: clamp(28px, 5vw, 60px);
+      }
+      @media (max-width: 860px) {
+        .steps-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (max-width: 420px) {
+        .steps-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .steps-grid.steps-3col {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      @media (max-width: 680px) {
+        .steps-grid.steps-3col {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      .step-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-card);
+        padding: clamp(16px, 2.5vw, 28px);
+        position: relative;
+        overflow: hidden;
+        transition:
+          border-color var(--t),
+          background var(--t);
+        animation: fadeUp 0.45s ease both;
+      }
+      .step-card:hover {
+        border-color: rgba(255, 90, 0, 0.2);
+        background: #141414;
+      }
+      .step-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--orange), transparent);
+        opacity: 0;
+        transition: opacity var(--t);
+      }
+      .step-card:hover::before {
+        opacity: 1;
+      }
+      .step-card:nth-child(1) {
+        animation-delay: 0.08s;
+      }
+      .step-card:nth-child(2) {
+        animation-delay: 0.14s;
+      }
+      .step-card:nth-child(3) {
+        animation-delay: 0.2s;
+      }
+      .step-card:nth-child(4) {
+        animation-delay: 0.26s;
+      }
+
+      .step-num {
+        font-family: var(--font-display);
+        font-size: clamp(2.2rem, 5vw, 3.2rem);
+        font-weight: 900;
+        color: rgba(255, 90, 0, 0.12);
+        line-height: 1;
+        margin-bottom: 8px;
+      }
+      .step-title {
+        font-family: var(--font-display);
+        font-size: clamp(0.9rem, 2vw, 1rem);
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--text-hi);
+        margin-bottom: 6px;
+      }
+      .step-desc {
+        font-size: clamp(0.82rem, 1.8vw, 0.9rem);
+        color: var(--text-mid);
+        line-height: 1.55;
+      }
+      .step-desc code {
+        font-size: 0.8rem;
+        background: rgba(255, 90, 0, 0.08);
+        border: 1px solid rgba(255, 90, 0, 0.15);
+        color: var(--orange);
+        padding: 1px 6px;
+        border-radius: 4px;
+        word-break: break-word;
+      }
+      .step-desc .share-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        background: rgba(100, 160, 255, 0.12);
+        border: 1px solid rgba(100, 160, 255, 0.25);
+        border-radius: 5px;
+        font-size: 0.7rem;
+        color: #64a0ff;
+        vertical-align: middle;
+      }
+
+      /* ── NOTICE BOX ── */
+      .notice-box {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-left: 3px solid rgba(255, 90, 0, 0.5);
+        border-radius: 0 var(--radius-card) var(--radius-card) 0;
+        padding: clamp(16px, 3vw, 24px) clamp(16px, 3vw, 28px);
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        animation: fadeUp 0.45s 0.3s ease both;
+        margin-bottom: clamp(20px, 3vw, 32px);
+      }
+      .notice-box > i {
+        font-size: clamp(1.1rem, 3vw, 1.4rem);
+        color: var(--orange);
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+      .notice-box-text h6 {
+        font-family: var(--font-display);
+        font-size: clamp(0.85rem, 2vw, 0.95rem);
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--text-hi);
+        margin-bottom: 6px;
+      }
+      .notice-box-text p {
+        font-size: clamp(0.82rem, 1.8vw, 0.88rem);
+        color: var(--text-mid);
+        line-height: 1.6;
+        margin: 0;
+      }
+      .notice-box-text p strong {
+        color: var(--text-hi);
+      }
+
+      /* ── PWA INSTALLED TOAST ── */
+      #pwa-toast {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(80px);
+        background: #1a1a1a;
+        border: 1px solid rgba(93, 232, 124, 0.3);
+        border-radius: 40px;
+        padding: 12px 24px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--font-display);
+        font-size: 0.9rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #5de87c;
+        z-index: 999;
+        transition:
+          transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+          opacity 0.3s;
+        opacity: 0;
+        pointer-events: none;
+      }
+      #pwa-toast.show {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+      }
+
+      /* ── SECTION TAB PANELS ── */
+      .tab-panel {
+        display: none;
+      }
+      .tab-panel.active {
+        display: block;
+      }
+
+      /* ── ANIMATION ── */
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(18px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .app-card {
+        animation: fadeUp 0.45s 0.04s ease both;
+      }
+
+      /* ════════════════════════════════════════════════
+       iOS INSTALL MODAL
+    ════════════════════════════════════════════════ */
+      #ios-modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        align-items: flex-end;
+        justify-content: center;
+        padding: 0 0 env(safe-area-inset-bottom, 0);
+      }
+      #ios-modal-overlay.open {
+        display: flex;
+        animation: overlayIn 0.25s ease both;
+      }
+      @keyframes overlayIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .ios-modal-sheet {
+        background: #111;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-bottom: none;
+        border-radius: 24px 24px 0 0;
+        padding: 10px 24px 40px;
+        width: 100%;
+        max-width: 520px;
+        animation: sheetUp 0.38s cubic-bezier(0.32, 0.72, 0, 1) both;
+      }
+      @keyframes sheetUp {
+        from {
+          transform: translateY(100%);
+        }
+        to {
+          transform: translateY(0);
+        }
+      }
+
+      .ios-modal-handle {
+        width: 40px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.14);
+        border-radius: 4px;
+        margin: 10px auto 24px;
+      }
+
+      .ios-modal-header {
+        text-align: center;
+        margin-bottom: 24px;
+      }
+      .ios-modal-emoji {
+        font-size: 2.4rem;
+        line-height: 1;
+        margin-bottom: 10px;
+      }
+      .ios-modal-title {
+        font-family: var(--font-display);
+        font-size: clamp(1.5rem, 5vw, 2rem);
+        font-weight: 900;
+        letter-spacing: -0.01em;
+        text-transform: uppercase;
+        color: var(--text-hi);
+        margin-bottom: 6px;
+      }
+      .ios-modal-title span {
+        color: var(--orange);
+      }
+      .ios-modal-sub {
+        font-size: 0.86rem;
+        color: var(--text-mid);
+        line-height: 1.5;
+      }
+      .ios-modal-sub strong {
+        color: var(--text-hi);
+      }
+
+      .ios-step-row {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin-bottom: 8px;
+        transition: border-color var(--t);
+      }
+      .ios-step-row:hover {
+        border-color: rgba(255, 90, 0, 0.2);
+      }
+
+      .ios-step-num {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: rgba(255, 90, 0, 0.1);
+        border: 1px solid rgba(255, 90, 0, 0.28);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-family: var(--font-display);
+        font-weight: 900;
+        font-size: 0.85rem;
+        color: var(--orange);
+      }
+      .ios-step-content {
+      }
+      .ios-step-title {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 0.92rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--text-hi);
+        margin-bottom: 3px;
+      }
+      .ios-step-desc {
+        font-size: 0.83rem;
+        color: var(--text-mid);
+        line-height: 1.5;
+      }
+      .ios-step-desc strong {
+        color: var(--text-hi);
+      }
+      .icon-chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        background: rgba(100, 160, 255, 0.1);
+        border: 1px solid rgba(100, 160, 255, 0.22);
+        border-radius: 6px;
+        font-size: 0.72rem;
+        color: #64a0ff;
+        vertical-align: middle;
+      }
+
+      .ios-modal-btn {
+        width: 100%;
+        margin-top: 20px;
+        padding: 14px;
+        background: var(--orange);
+        border: none;
+        border-radius: var(--radius-btn);
+        font-family: var(--font-display);
+        font-size: 0.95rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #fff;
+        cursor: pointer;
+        transition:
+          background var(--t),
+          transform var(--t),
+          box-shadow var(--t);
+      }
+      .ios-modal-btn:hover {
+        background: #e65200;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 24px rgba(255, 90, 0, 0.38);
+      }
+      .ios-modal-btn:active {
+        transform: translateY(0);
+      }
+
+      .ios-modal-privacy {
+        text-align: center;
+        font-size: 0.75rem;
+        color: var(--text-lo);
+        line-height: 1.5;
+        margin-top: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ══ NAV ══ -->
+    <nav class="store-nav">
+      <div class="nav-inner">
+        <a class="nav-brand" href="/">
+          <span class="back-icon"><i class="bi bi-arrow-left"></i></span>
+          EnterGYM <span class="acc">App</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- ══ HERO ══ -->
+    <header class="page-header">
+      <div class="header-inner">
+        <div class="header-eyebrow">
+          <i class="bi bi-phone-fill"></i> Mobile Client
+        </div>
+        <h1>Download <span class="accent">App</span></h1>
+        <p>
+          Get the EnterGYM app — auto attendance, membership tracking, and
+          more.
+        </p>
+      </div>
+    </header>
+
+    <!-- ══ MAIN ══ -->
+    <main class="page-main">
+      <!-- ── Platform Tabs ── -->
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 12px;
+          margin-bottom: clamp(20px, 3vw, 36px);
+        "
+      >
+        <p
+          class="section-label"
+          style="margin-bottom: 0; flex: 1; min-width: 120px"
+        >
+          Choose Platform
+        </p>
+        <div class="platform-tabs" id="platform-tabs">
+          <button
+            class="tab-btn active"
+            data-tab="android"
+          >
+            <i class="bi bi-android2"></i> Android
+          </button>
+          <button class="tab-btn" data-tab="ios">
+            <i class="bi bi-apple"></i> iPhone
+          </button>
+        </div>
+      </div>
+
+      <!-- ══ ANDROID TAB ══ -->
+      <div id="tab-android" class="tab-panel active">
+        <div class="app-card">
+          <div class="app-card-visual">
+            <div class="phone-wrap">
+              <div class="phone-body">
+                <div class="phone-notch"></div>
+                <div class="phone-screen">
+                  <div class="phone-scan"></div>
+                  <div class="phone-icon">
+                    <i class="bi bi-lightning-charge-fill"></i>
+                  </div>
+                  <div class="phone-app-label">EnterGYM</div>
+                  <div class="phone-app-ver">v1.0.0</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="app-card-info">
+            <div class="app-name">
+              EnterGYM <span class="acc">Android</span>
+            </div>
+            <div class="badge-row">
+              <span class="pill pill-orange">v1.0.0</span>
+              <span class="pill pill-green">Stable</span>
+              <span class="pill pill-gray">~110 MB</span>
+              <span class="pill pill-gray">Android 8+</span>
+            </div>
+            <ul class="feature-list">
+              <li>
+                <i class="bi bi-geo-alt-fill"></i> Auto Attendance at gym
+              </li>
+              <li>
+                <i class="bi bi-credit-card-fill"></i> Membership &amp; payment
+                tracking
+              </li>
+              <li>
+                <i class="bi bi-bar-chart-fill"></i> Workout logs &amp; progress
+              </li>
+              <li><i class="bi bi-bell-fill"></i> Push notifications</li>
+            </ul>
+            <div class="btn-group-dl">
+              <a
+                href="https://github.com/SheikhAz/Fitness-Website/releases/download/v1.0.0/EnterGYM.apk"
+                download
+                class="btn-download"
+              >
+                <i class="bi bi-download"></i> Download APK
+              </a>
+              <!-- Revealed by JS when Chrome fires beforeinstallprompt -->
+            </div>
+          </div>
+        </div>
+
+        <p class="section-label">Installation Guide</p>
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-num">01</div>
+            <div class="step-title">Download</div>
+            <div class="step-desc">
+              Tap <strong>Download APK</strong> above to save the file to your
+              device.
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">02</div>
+            <div class="step-title">Allow Install</div>
+            <div class="step-desc">
+              Go to <code>Settings → Security</code> and enable
+              <code>Install unknown apps</code> for your browser.
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">03</div>
+            <div class="step-title">Open File</div>
+            <div class="step-desc">
+              Open the downloaded APK from your notification bar or Downloads
+              folder.
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">04</div>
+            <div class="step-title">Launch</div>
+            <div class="step-desc">
+              Tap Install, open EnterGYM, and sign in with your existing
+              account.
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /tab-android -->
+
+      <!-- ══ iOS TAB ══ -->
+      <div id="tab-ios" class="tab-panel">
+        <div class="app-card">
+          <div class="app-card-visual">
+            <div class="phone-wrap">
+              <div class="phone-body">
+                <div class="phone-notch"></div>
+                <div class="phone-screen">
+                  <div class="phone-scan"></div>
+                  <div class="phone-icon"><i class="bi bi-apple"></i></div>
+                  <div class="phone-app-label">EnterGYM</div>
+                  <div class="phone-app-ver">PWA</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="app-card-info">
+            <div class="app-name">EnterGYM <span class="acc">iPhone</span></div>
+            <div class="badge-row">
+              <span class="pill pill-blue">Web App</span>
+              <span class="pill pill-green">No App Store</span>
+              <span class="pill pill-gray">iOS 16.4+</span>
+            </div>
+            <ul class="feature-list">
+              <li>
+                <i class="bi bi-house-door-fill"></i> Appears on your Home
+                Screen like a native app
+              </li>
+              <li>
+                <i class="bi bi-fullscreen"></i> Opens fullscreen — no Safari
+                chrome
+              </li>
+              <li>
+                <i class="bi bi-wifi-off"></i> Works offline after first load
+              </li>
+              <li>
+                <i class="bi bi-bell-fill"></i> Push notifications (iOS 16.4+)
+              </li>
+              <li>
+                <i class="bi bi-arrow-repeat"></i> Always up-to-date
+                automatically
+              </li>
+            </ul>
+
+            <!-- ✅ Opens the step-by-step modal, does NOT navigate -->
+            <div class="btn-group-dl">
+              <button
+                type="button"
+                class="btn-download"
+              >
+                <i class="bi bi-plus-square"></i> Install on iPhone
+              </button>
+            </div>
+            <p
+              style="
+                font-size: 0.82rem;
+                color: var(--text-lo);
+                line-height: 1.5;
+              "
+            >
+              Must use <strong style="color: var(--text-mid)">Safari</strong> —
+              Chrome &amp; Firefox on iOS cannot install web apps.
+            </p>
+          </div>
+        </div>
+
+        <div class="notice-box">
+          <i class="bi bi-info-circle-fill"></i>
+          <div class="notice-box-text">
+            <h6>Why Safari Only?</h6>
+            <p>
+              Apple restricts PWA installation to Safari on iOS. When you add
+              the site via Safari, it installs as a
+              <strong>Progressive Web App</strong> — it gets its own icon, runs
+              fullscreen with no browser bars, and loads even with a poor
+              connection. Notifications require
+              <strong>iOS 16.4 or later</strong>.
+            </p>
+          </div>
+        </div>
+      </div>
+      <!-- /tab-ios -->
+    </main>
+
+    <!-- ══ INSTALLED TOAST ══ -->
+    <div id="pwa-toast">
+      <i class="bi bi-check-circle-fill"></i> App installed!
+    </div>
+
+    <!-- ════════════════════════════════════════════════
+       iOS INSTALL MODAL (bottom sheet)
+  ════════════════════════════════════════════════ -->
+    <div
+      id="ios-modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Install EnterGYM on iPhone"
+    >
+      <div class="ios-modal-sheet">
+        <div class="ios-modal-handle"></div>
+
+        <div class="ios-modal-header">
+          <div class="ios-modal-emoji">📲</div>
+          <div class="ios-modal-title">Install <span>EnterGYM</span></div>
+          <p class="ios-modal-sub">
+            Follow 3 steps in <strong>Safari</strong> to add EnterGYM to your
+            Home Screen.
+          </p>
+        </div>
+
+        <!-- Step 1 -->
+        <div class="ios-step-row">
+          <div class="ios-step-num">1</div>
+          <div class="ios-step-content">
+            <div class="ios-step-title">Open in Safari</div>
+            <div class="ios-step-desc">
+              Make sure you're using <strong>Safari</strong> — not Chrome or
+              Firefox. Copy the URL and paste it into Safari if needed.
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="ios-step-row">
+          <div class="ios-step-num">2</div>
+          <div class="ios-step-content">
+            <div class="ios-step-title">
+              Tap Share
+              <span class="icon-chip"><i class="bi bi-box-arrow-up"></i></span>
+            </div>
+            <div class="ios-step-desc">
+              Tap the <strong>Share</strong> button at the bottom of Safari —
+              the square with an arrow pointing up.
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="ios-step-row">
+          <div class="ios-step-num">3</div>
+          <div class="ios-step-content">
+            <div class="ios-step-title">Add to Home Screen ＋</div>
+            <div class="ios-step-desc">
+              Scroll the share sheet and tap
+              <strong>Add to Home Screen</strong>, then tap
+              <strong>Add</strong> in the top-right corner. Done!
+            </div>
+          </div>
+        </div>
+
+        <button class="ios-modal-btn">Got it!</button>
+
+        <p class="ios-modal-privacy">
+          Your location is only checked on-device against gym proximity.<br />
+          We never track or store your location on our servers.
+        </p>
+      </div>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      defer
+    ></script>
+
+    <script nonce="{{ request.csp_nonce }}" >
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+              switchTab(btn.dataset.tab);
+          });
+      });
+      /* ── Tab switching ── */
+      function switchTab(name) {
+        document
+          .querySelectorAll(".tab-panel")
+          .forEach((p) => p.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((b) => b.classList.remove("active"));
+        document.getElementById("tab-" + name).classList.add("active");
+        document.querySelector(`[data-tab="${name}"]`).classList.add("active");
+      }
+
+      /* ── Auto-detect iOS and pre-select tab ── */
+      const isIOS =
+        /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      if (isIOS) switchTab("ios");
+
+      /* ── Service Worker registration ── */
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("/sw.js")
+            .then((reg) => console.log("[SW] registered:", reg.scope))
+            .catch((err) => console.warn("[SW] registration failed:", err));
+        });
+      }
+
+      /* ── PWA install prompt (Android Chrome) ── */
+      let deferredPrompt = null;
+      const installBtn = document.getElementById("pwa-install-btn");
+      const pwaToast = document.getElementById("pwa-toast");
+
+      window.addEventListener("beforeinstallprompt", (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBtn.style.display = "inline-flex";
+      });
+
+      async function triggerInstall() {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        installBtn.style.display = "none";
+        if (outcome === "accepted") showToast();
+      }
+
+      window.addEventListener("appinstalled", () => {
+        deferredPrompt = null;
+        installBtn.style.display = "none";
+        showToast();
+      });
+
+      function showToast() {
+        pwaToast.classList.add("show");
+        setTimeout(() => pwaToast.classList.remove("show"), 3500);
+      }
+
+      /* ════════════════════════════════════════════════
+       iOS INSTALL MODAL
+    ════════════════════════════════════════════════ */
+      const overlay = document.getElementById("ios-modal-overlay");
+      // Wire up "Install on iPhone" button
+      document.querySelector("#tab-ios .btn-download").addEventListener("click", openIOSModal);
+
+      // Wire up "Got it!" close button
+      document.querySelector(".ios-modal-btn").addEventListener("click", closeIOSModal);
+
+      // Wire up backdrop click to close
+      overlay.addEventListener("click", handleOverlayClick);
+      function openIOSModal() {
+        overlay.classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeIOSModal() {
+        const sheet = overlay.querySelector(".ios-modal-sheet");
+        sheet.style.transition = "transform 0.3s cubic-bezier(0.32,0.72,0,1)";
+        sheet.style.transform = "translateY(100%)";
+        overlay.style.transition = "opacity 0.3s ease";
+        overlay.style.opacity = "0";
+        setTimeout(() => {
+          overlay.classList.remove("open");
+          sheet.style.transform = "";
+          sheet.style.transition = "";
+          overlay.style.opacity = "";
+          overlay.style.transition = "";
+          document.body.style.overflow = "";
+        }, 300);
+      }
+
+      function handleOverlayClick(e) {
+        // Close if user clicks the dark backdrop (not the sheet itself)
+        if (e.target === overlay) closeIOSModal();
+      }
+
+      // Close with Escape key
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && overlay.classList.contains("open"))
+          closeIOSModal();
+      });
+
+      // Auto-open modal on iOS if user just arrived on the iOS tab
+      // (only once per session so it doesn't feel aggressive)
+      if (isIOS && !sessionStorage.getItem("ios_modal_shown")) {
+        sessionStorage.setItem("ios_modal_shown", "1");
+        setTimeout(openIOSModal, 900); // slight delay so page settles first
+      }
+    </script>
+  </body>
+</html>

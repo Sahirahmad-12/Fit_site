@@ -1,0 +1,811 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="icon"
+      type="image/png"
+      href="{% static 'images/favicons.png' %}"
+    />
+    <!-- PWA manifest + mobile meta tags -->
+    <link rel="manifest" href="{% static 'js/manifest.json' %}">
+    <meta name="theme-color" content="#00dcff">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- ✅ ADD THESE SEO TAGS -->
+    <title>EnterGYM | Fitness Center in Bhilai, Chhattisgarh</title>
+    <meta
+      name="description"
+      content="EnterGYM Bhilai - Transform your body with expert coaches, modern equipment & personalized plans. Start your 2-day free trial today!"
+    />
+    <meta
+      name="keywords"
+      content="gym Bhilai, fitness center Chhattisgarh, personal trainer Bhilai, EnterGym"
+    />
+
+    <!-- ✅ WhatsApp/Facebook preview -->
+    <meta property="og:title" content="EnterGYM | Fitness Center Bhilai" />
+    <meta
+      property="og:description"
+      content="Crush your health and fitness goals with EnterGYM. Start a 2-day free trial!"
+    />
+    <meta property="og:url" content="https://entergym.com" />
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+    />
+    <link rel="stylesheet" href="{% static 'css/home.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/loc_modal.css' %}">
+    <!-- Preload mobile image for small screens -->
+    <link
+      href="{% static 'images/Fitness_mobile.webp' %}"
+      media="(max-width: 768px)"
+      fetchpriority="high" />
+
+    <!-- Preload desktop image for large screens -->
+    <link rel="preload" as="image"
+      href="{% static 'images/Fitness.webp' %}"
+      media="(min-width: 769px)"
+      fetchpriority="high" />
+  </head>
+  <body>
+    <div id="message-container">
+      {% for message in messages %}
+      <div
+        class="flash-message {% if message.tags == 'success' %} success {% elif message.tags == 'error' %} error {% else %} default {% endif %}"
+      >
+        <span>{{ message }}</span>
+        <button class="close-btn">×</button>
+      </div>
+      {% endfor %}
+    </div>
+    {% if request.user.is_staff and VAPID_PUBLIC_KEY %}
+      <div id="vapid-meta" data-key="{{ VAPID_PUBLIC_KEY }}" style="display:none;"></div>
+    {% endif %}
+    <!-- HERO -->
+    <section class="hero" id="home">
+      <!-- Background -->
+      <img 
+        src="{% static 'images/Fitness.webp' %}"
+        srcset="
+          {% static 'images/Fitness_mobile.webp' %} 768w,
+          {% static 'images/Fitness.webp' %}        1920w
+        "
+        sizes="100vw"
+        class="hero-bg"
+        width="1920"
+        height="1080"
+        loading="eager"
+        fetchpriority="high"
+        alt="EnterGYM fitness center Bhilai"
+      />
+
+      <div class="overlay"></div>
+
+      <!-- TOP BAR -->
+      <div class="topbar">
+        <div class="container flex-between">
+          <span>EnterGYM in Bhilai, Chhattisgarh</span>
+          <span class="right-inner">Join: (+91) 7000032565</span>
+        </div>
+        <div class="divider"></div>
+      </div>
+
+      <!-- ===================== NOTIFICATION BAR ===================== -->
+      <!-- Shown only if there are active gym notifications -->
+      {% if gym_notifications %}
+      <div class="notif-bar" id="notifBar">
+        <div class="notif-inner">
+          <!-- Label badge -->
+          <span class="notif-label">🔔 NOTICE</span>
+
+          <!-- Scrolling ticker -->
+          <div class="notif-ticker-wrap">
+            <div class="notif-ticker" id="notifTicker">
+              {% for notif in gym_notifications %}
+              <span class="notif-item">
+                {% if notif.icon %} {{ notif.icon }} {% endif %} 
+                {{ notif.message}} 
+                {% if not forloop.last %}&nbsp;&nbsp;•&nbsp;&nbsp;
+                {% endif %}
+              </span>
+              {% endfor %}
+              <!-- Duplicate for seamless loop -->
+              {% for notif in gym_notifications %}
+              <span class="notif-item" aria-hidden="true">
+                {% if notif.icon %} {{ notif.icon }} {% endif %} 
+                {{ notif.message}} 
+                {% if not forloop.last %}
+                &nbsp;&nbsp;•&nbsp;&nbsp;
+                {% endif %}
+              </span>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Close button -->
+          <button class="notif-close" id="notifClose" aria-label="Close">
+            ×
+          </button>
+        </div>
+      </div>
+      {% endif %}
+      <!-- =================== END NOTIFICATION BAR =================== -->
+
+      <!-- NAVBAR -->
+      <nav class="navbar" id="navbar">
+        <div class="nav-container">
+          <a href="/" class="logo">
+            <img
+              src="{% static 'images/Logo1s.png' %}"
+              alt="EnterGYM Fitness Center Logo"
+              class="logo-img"
+            />
+          </a>
+
+          <ul class="nav-links" id="navLinks">
+            {% if isSuperuser or isStaff %}
+            <li class="dropdown">
+              <a href="#">Attendance ▼</a>
+              <ul class="dropdown-menu">
+                <li><a href="/admin/attendance/">Attendance Analysis</a></li>
+                <li><a href="/admin-tools/today-attendance/">Attendance List</a></li>
+              </ul>
+            </li>
+            {% endif %} {% if isSuperuser %}
+            <li class="dropdown">
+              <a href="#">Payment ▼</a>
+              <ul class="dropdown-menu">
+                <li><a href="/freeze-membership/">Member's</a></li>
+                <li><a href="/admin/revenue/">Revenue</a></li>
+                <li>
+                  <a href="{% url 'whatsapp_pending' %}">Payment Reminders</a>
+                </li>
+              </ul>
+            </li>
+            {% endif %} {% if isStaff or isSuperuser %}
+            <li><a href="/manage/orders/">Orders</a></li>
+            <li>
+              <a href="/admin/AuthFit/membershipplan/">MemberShip Plan</a>
+            </li>
+            <li><a href="/admin/AuthFit/contact/">User Queries</a></li>
+            {% else %}
+            <li class="dropdown">
+              <a href="#">Membership ▼</a>
+              <ul class="dropdown-menu">
+                {% if request.user.is_authenticated %} 
+                  {% if not enrolled %}
+                  <li><a href="/enrollment/">Join Now</a></li>
+                  {% endif %} 
+                {% else %}
+                <li><a href="/signup/">Join Now</a></li>
+                {% endif %}
+
+                <li><a href="/workout/">Workout</a></li>
+
+                {% if request.user.is_authenticated and enrolled %} 
+                  {% if isStaff %}
+                    <li>
+                      <a href="/admin/AuthFit/attendence/">Attendance List</a>
+                    </li>
+                  {% else %}
+                <li><a href="/attendence/">Attendance</a></li>
+                  {% endif %} 
+                {% endif %}
+              </ul>
+            </li>
+
+            <li><a href="#Price">Free Trial</a></li>
+            <li><a href="#About">About</a></li>
+            <li><a href="/contact/">Contact</a></li>
+            <li><a href="/products/">Supplements</a></li>
+            {% endif %}
+          </ul>
+
+          <div class="nav-right">
+            {% if request.user.is_authenticated %} {% if isStaff %}
+            <a href="/admin/" class="btn">AdPanel</a>
+            <a href="{% url 'payment_management' %}" class="btn">Enroll List</a>
+            {% else %}
+            <a href="/profile/" class="btn">My Profile</a>
+
+            {% if enrolled %}
+            <a href="/attendence/" class="btn mobile-only">Attendance</a>
+            {% else %}
+            <a href="/enrollment/" class="btn mobile-only">Join Now</a>
+            {% endif %} {% endif %}
+
+            <form
+              action="{% url 'logout' %}"
+              method="POST"
+              class="desktop-only"
+            >
+              {% csrf_token %}
+              <button type="submit" class="btn">Logout</button>
+            </form>
+
+            {% else %}
+            <a href="/signup/" class="btn">SignUp/LogIn</a>
+            {% endif %}
+
+            <button
+              id="menuBtn"
+              class="hamburger-icon"
+              aria-label="Open navigation menu"
+              aria-expanded="false"
+            >
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <!-- HERO CONTENT -->
+      <div id="heroContent" class="hero-content hero-animate">
+        <div class="hero-tag">Now Open · Bhilai, Chhattisgarh</div>
+        <h1 class="hero-title">
+          Crush Your Fitness Goals<br class="break-line" />
+          <em>Faster</em> Than Ever Before
+        </h1>
+
+        <p class="hero-desc">
+          It doesn't matter if your goal is to get stronger, burn fat, or stay fit.
+          Our world-class coaches will guide you every step of the way.
+        </p>
+
+
+        <div class="hero-cta-row">
+          {% if request.user.is_authenticated %}
+          <a href="/enrollment/" class="cta-btn">Start 2-Day Free Trial →</a>
+          {% else %}
+          <a href="/signup/" class="cta-btn">Start 2-Day Free Trial →</a>
+          {% endif %}
+          <a href="#About" class="cta-btn-ghost">Explore More</a>
+        </div>
+
+        <!-- HERO STATS -->
+        <div class="hero-stats">
+          <div class="hero-stat-item">
+            <div class="hero-stat-number">
+              <span id="statExercise">0</span
+              ><span class="hero-stat-plus">+</span>
+            </div>
+            <div class="hero-stat-label">Exercise Types</div>
+          </div>
+          <div class="hero-stat-divider"></div>
+          <div class="hero-stat-item">
+            <div class="hero-stat-number">
+              <span id="statSatisfaction">0</span
+              ><span class="hero-stat-plus">%</span>
+            </div>
+            <div class="hero-stat-label">Satisfaction</div>
+          </div>
+          <div class="hero-stat-divider"></div>
+          <div class="hero-stat-item">
+            <div class="hero-stat-number">
+              <span id="statUsers">0</span><span class="hero-stat-plus">+</span>
+            </div>
+            <div class="hero-stat-label">Loyal Customers</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MOBILE MENU OVERLAY -->
+    <div id="mobileMenu" class="mobile-menu">
+      <div class="menu-box">
+        <div class="menu-header">
+          <div class="menu-logo">
+            <div class="logo-bars"><span></span><span></span><span></span></div>
+            <div class="logo-text">
+              <b>EnterGYM</b>
+              <small>Bhilai &middot; Chhattisgarh</small>
+            </div>
+          </div>
+          <button id="closeMenu" class="menu-close-btn" aria-label="Close menu">
+            &#10005;
+          </button>
+        </div>
+
+        <div class="menu-divider"></div>
+
+        <ul class="menu-nav">
+          {% if isSuperuser %}
+          <li>
+            <a href="/admin/revenue/">Revenue <span>↗</span></a>
+          </li>
+          {% endif %}
+          {% if isStaff %}
+          <li>
+            <a href="/manage/orders/">Orders <span>↗</span></a>
+          </li>
+          <li>
+            <a href="/admin-tools/today-attendance/">Attendance List <span>↗</span></a>
+          </li>
+          <li>
+            <a href="/admin/attendance/">Attendance Analysis <span>↗</span></a>
+          </li>
+          <li>
+            <a href="/freeze-membership/"> Member's <span>↗</span></a>
+          </li>
+          <li>
+            <a href="{% url 'whatsapp_pending' %}">Payment Reminders</a>
+          </li>
+          <li>
+            <a href="/admin/AuthFit/membershipplan/"> Plans <span>↗</span></a>
+          </li>
+          <li>
+            <a href="/admin/AuthFit/contact/">Queries <span>↗</span></a>
+          </li>
+          {% else %}
+          <li class="active">
+            <a href="/">Home <span>↗</span></a>
+          </li>
+          <li>
+            <a href="/products/">Supplements <span>↗</span></a>
+          </li>
+          {% if isEnrolled %}
+          
+          {% else %}
+          <li>
+            <a href="#Price">Free Trial <span>↗</span></a>
+          </li>
+          {% endif %}
+          <li>
+            <a href="#About">About <span>↗</span></a>
+          </li>
+          <li>
+            <a href="/contact/">Contact <span>↗</span></a>
+          </li>
+          <li>
+            <a href="/workout/">Workout <span>↗</span></a>
+          </li>
+          <li>
+            <a href="{% url 'download_app' %}">Download App<span>↗</span></a>
+          </li>
+          {% endif %}
+        </ul>
+
+        {% if not isStaff and not isSuperuser %} 
+          {% if request.user.is_authenticated %}
+            <a href="/enrollment/" class="menu-cta">Start 2-Day Free Trial</a>
+          {% else %}
+            <a href="/signup/" class="menu-cta">Start 2-Day Free Trial</a>
+          {% endif %} 
+        {% endif %}
+
+        <div class="menu-footer">
+          <p class="menu-footer-label">[ Contact Info ]</p>
+          <a href="tel:+917000032565">(+91) 70000 32565</a>
+          <a href="#classes">Junwani Rd, Bhilai, CG 490023</a>
+        </div>
+
+        {% if request.user.is_authenticated %}
+        <form
+          action="{% url 'logout' %}"
+          method="POST"
+          class="menu-logout-form"
+        >
+          {% csrf_token %}
+          <button type="submit" class="menu-logout-btn">Logout</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+
+    <section id="About" class="features-section">
+      <div class="features-container">
+        <p class="small-heading">WHY CHOOSE US?</p>
+        <h2 class="main-heading">PUSH YOUR <span>LIMITS</span> FORWARD</h2>
+        <div class="cyber-divider"></div>
+
+        <div class="features-grid">
+          <!-- Card 1 -->
+          <div class="feature-card">
+            <span class="cyber-corner tl"></span>
+            <span class="cyber-corner br"></span>
+            <div class="card-top">
+              <div class="icon-box">
+                <img
+                  src="{% static 'images/features/barbell.png' %}"
+                  alt="Modern gym barbells and free weights at EnterGYM"
+                  loading="lazy"
+                />
+              </div>
+              <div class="card-meta">
+                <p class="card-label">Equipment</p>
+                <h3>Modern Equipment</h3>
+              </div>
+              <span class="card-chevron">&#8964;</span>
+            </div>
+            <div class="feature-desc">
+              <div class="feature-desc-inner">
+                <ul class="feature-list">
+                  <li>
+                    <span class="cyber-bullet"></span>State-of-the-art machines
+                    &amp; free weights
+                  </li>
+                  <li>
+                    <span class="cyber-bullet"></span>Enhances performance and
+                    ensures safety
+                  </li>
+                  <li>
+                    <span class="cyber-bullet"></span>Suitable for beginners to
+                    advanced athletes
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="feature-card" >
+            <span class="cyber-corner tl"></span>
+            <span class="cyber-corner br"></span>
+            <div class="card-top">
+              <div class="icon-box">
+                <img
+                  src="{% static 'images/features/vitamins.png' %}"
+                  alt="Healthy nutrition plan supplements"
+                  loading="lazy"
+                />
+              </div>
+              <div class="card-meta">
+                <p class="card-label">Nutrition</p>
+                <h3>Healthy Nutrition Plan</h3>
+              </div>
+              <span class="card-chevron">&#8964;</span>
+            </div>
+            <div class="feature-desc">
+              <div class="feature-desc-inner">
+                <ul class="feature-list">
+                  <li>
+                    <span class="cyber-bullet"></span>Customized programs
+                    aligned to your goals
+                  </li>
+                  <li>
+                    <span class="cyber-bullet"></span>Balanced macros for energy
+                    &amp; recovery
+                  </li>
+                  <li>
+                    <span class="cyber-bullet"></span>Micro-nutrient guidance
+                    included
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="feature-card">
+            <span class="cyber-corner tl"></span>
+            <span class="cyber-corner br"></span>
+            <div class="card-top">
+              <div class="icon-box">
+                <img
+                  src="{% static 'images/features/trainer.png' %}"
+                  alt="Professional personal trainer at EnterGYM Bhilai"
+                  loading="lazy"
+                />
+              </div>
+              <div class="card-meta">
+                <p class="card-label">Training</p>
+                <h3>Professional Training Plan</h3>
+              </div>
+              <span class="card-chevron">&#8964;</span>
+            </div>
+            <div class="feature-desc">
+              <div class="feature-desc-inner">
+                <ul class="feature-list">
+                  <li>
+                    <span class="cyber-bullet"></span>Expert-designed workouts
+                    for your body type
+                  </li>
+                  <li>
+                    <span class="cyber-bullet"></span>Tailored to your current
+                    fitness level
+                  </li>
+                  <li>
+                    <span class="cyber-bullet"></span>Structured for consistent,
+                    efficient progress
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="feature-card" >
+            <span class="cyber-corner tl"></span>
+            <span class="cyber-corner br"></span>
+            <div class="card-top">
+              <div class="icon-box">
+                <img
+                  src="{% static 'images/features/heart-beat.png' %}"
+                  alt="Personalized fitness heart rate monitoring"
+                  loading="lazy"
+                />
+              </div>
+              <div class="card-meta">
+                <p class="card-label">Personalized</p>
+                <h3>Unique to Your Needs</h3>
+              </div>
+              <span class="card-chevron">&#8964;</span>
+            </div>
+            <div class="feature-desc">
+              <div class="feature-desc-inner">
+                <ul class="feature-list">
+                  <li>
+                    <span class="cyber-bullet"></span>Personalized solutions for
+                    your lifestyle
+                  </li>
+                  <li>
+                    <span class="cyber-bullet"></span>Adapts to your preferences
+                    &amp; health goals
+                  </li>
+                  <li>
+                    <span class="cyber-bullet"></span>One-on-one assessments to
+                    find the right plan
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="offer-section">
+      <div class="offer-container">
+        <h2 class="offer-heading">
+          <span class="white">WHAT WE CAN</span>
+          <span class="orange"> OFFER</span>
+        </h2>
+
+        <div class="offer-grid">
+          <div class="offer-card">
+            <img
+                src="{% static 'images/offer/machine_1.webp' %}"
+                width="179"
+                height="220"
+                loading="lazy"
+                alt="Weightlifting machines at EnterGYM"
+              />
+            <div class="overlay"></div>
+            <div class="skew-box"></div>
+            <div class="content">
+              <p>STRENGTH</p>
+              <h3>WEIGHTLIFTING</h3>
+            </div>
+          </div>
+
+          <div class="offer-card">
+            <img
+                src="{% static 'images/offer/machine_2.webp' %}"
+                width="179"
+                height="220"
+                loading="lazy"
+                alt="Indoor cycling cardio equipment at EnterGYM"
+              />
+            <div class="overlay"></div>
+            <div class="skew-box"></div>
+            <div class="content">
+              <p>CARDIO</p>
+              <h3>INDOOR CYCLING</h3>
+            </div>
+          </div>
+
+          <div class="offer-card center-card">
+            <img
+                src="{% static 'images/offer/trainer.webp' %}"
+                width="455"
+                height="291"
+                loading="lazy"
+                alt="Certified personal trainer at EnterGYM Bhilai"
+              />
+            <div class="overlay"></div>
+            <div class="skew-box"></div>
+            <div class="content">
+              <p>PERSONAL TRAINER</p>
+              <h3>Certified Trainer</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="Price" class="cta-section">
+      <img
+        src="{% static 'images/Registration.webp' %}"
+        class="cta-bg"
+        alt="Join EnterGYM fitness center Bhilai"
+      />
+      <div class="cta-overlay"></div>
+      <div class="cta-content">
+        <p class="cta-top-text">ARE YOU READY TO</p>
+        <h2 class="cta-title">
+          <span>GET FIT</span>, STRONG <br class="break-line" />
+          & MOTIVATED!
+        </h2>
+        <p class="cta-sub-text">Registration now to get</p>
+        <p class="cta-highlight">WHERE HEALTH, BEAUTY AND FITNESS MEET.</p>
+        <div class="cta-btn-wrapper">
+          {% if request.user.is_authenticated %}
+          <a href="/enrollment/" class="cta-btn">Start 2 Day Free Trial</a>
+          {% else %}
+          <a href="/signup/" class="cta-btn">Start 2 Day Free Trial</a>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+    <section class="pricing-section" id="pricing">
+      <div class="pricing-container">
+        <p class="pricing-subtitle">OUR PLANS</p>
+        <h2 class="pricing-title">CHOOSE YOUR FITNESS PLAN</h2>
+
+        <div class="pricing-grid">
+          {% for plan in plans %}
+          <div
+            class="pricing-card {% if forloop.counter == 2 %}popular{% endif %}"
+          >
+            {# ── Badge: "MOST POPULAR" on 2nd plan, "BEST VALUE" on last ── #}
+            {% if forloop.counter == 2 %}
+            <span class="badge">MOST POPULAR</span>
+            {% elif forloop.last and plans|length > 1 %}
+            <span class="badge best">BEST VALUE</span>
+            {% endif %}
+
+            <h3>{{ plan.plan }}</h3>
+
+            <div class="price">₹{{ plan.price }}</div>
+
+            {# ── Duration label derived from duration_days ── #}
+            <p class="duration">
+              {% if plan.duration_days == 1 %} PER DAY 
+              {% elif plan.duration_days <= 7 %} {{ plan.duration_days }} DAYS {% elif plan.duration_days <= 14 %} {{ plan.duration_days }} DAYS {% elif plan.duration_days == 30 or plan.duration_days == 31 %} PER MONTH
+              {% elif plan.duration_days == 60 %} 2 MONTHS 
+              {% elif plan.duration_days == 90 or plan.duration_days == 91 %} 
+              3 MONTHS
+              {% elif plan.duration_days == 180 or plan.duration_days == 182 %}
+              6 MONTHS 
+              {% elif plan.duration_days == 365 or plan.duration_days == 366 %} 12 MONTHS 
+              {% else %} {{ plan.duration_days }} DAYS 
+              {% endif %}
+            </p>
+          </div>
+          {% empty %}
+          <p
+            style="
+              color: rgba(255, 255, 255, 0.5);
+              grid-column: 1/-1;
+              text-align: center;
+              padding: 40px 0;
+            "
+          >
+            No membership plans available right now. Check back soon!
+          </p>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <footer id="classes" class="footer">
+      <div class="footer-top">
+        <div class="footer-container footer-top-inner">
+          <div class="footer-contact">
+            <div class="footer-icon">
+              <img
+                src="{% static 'images/footer/placeholder.png' %}"
+                alt="EnterGYM location Bhilai Chhattisgarh"
+              />
+            </div>
+            <p>
+              Infront of AL-Lazeez, Junwani Rd<br />Bhilai, Chhattisgarh 490023
+            </p>
+          </div>
+          <div class="footer-contact">
+            <div class="footer-icon">
+              <img
+                src="{% static 'images/footer/email.png' %}"
+                alt="Email EnterGYM support"
+              />
+            </div>
+            <p>support@gymcenter.com</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-container footer-main">
+        <div class="footer-brand">
+          <h2>GY<span>M</span></h2>
+          <p>
+            Transform your body and mind with professional training, modern
+            equipment and expert fitness coaching.
+          </p>
+          <div class="footer-social">
+            <img
+              src="{% static 'images/footer/instagram.png' %}"
+              alt="EnterGYM Instagram"
+            />
+            <img
+              src="{% static 'images/footer/email.png' %}"
+              alt="EnterGYM Email"
+            />
+          </div>
+        </div>
+
+        <div class="footer-links useful">
+          <h3>Useful Links</h3>
+          <ul>
+            <li><a href="#About">About</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#classes">Classes</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links support">
+          <h3>Support</h3>
+          <ul>
+            {% if request.user.is_authenticated %}
+            <li><a href="/profile/">Profile</a></li>
+            {% else %}
+            <li><a href="/signup/">Login</a></li>
+            {% endif %} {% if request.user.is_authenticated %} {% if enrolled %}
+            <li><a href="/attendence/">Attendence</a></li>
+            {% endif %} {% endif %}
+            <li><a href="#pricing">Subscribe</a></li>
+            <li><a href="/contact/">Contact</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-extra hours">
+          <h3>Opening Hours</h3>
+          <ul>
+            <li>Mon - Sat</li>
+            <li>Morning : 5AM-9AM</li>
+            <li>Evening : 4PM-10PM</li>
+            <li>Sun: Closed</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        Copyright ©2026 All rights reserved
+        <span>
+          <a
+            href="https://wa.me/917000032565?text=Hi%20Azzy!%20I%20visited%20your%20website%20and%20I%E2%80%99m%20interested%20in%20your%20web%20development%20services."
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            by Arrow SoftTech
+          </a>
+        </span>
+      </div>
+    </footer>
+    <script src="{% static 'js/home.js' %}" defer></script>
+    <!-- GYM_CONFIG — values injected automatically by context_processors.py -->
+    <script nonce="{{ request.csp_nonce }}">
+      document.querySelectorAll('.pricing-card').forEach(card => {
+          card.addEventListener('click', () => {
+              togglePricing(card);
+          });
+      });
+      window.GYM_CONFIG = JSON.parse('{{ GYM_CONFIG_JSON|escapejs }}');
+    </script>
+    <script src="{% static 'js/loc_permission.js' %}"></script>
+    <script src="{% static 'js/geo_attendance.js' %}"></script>
+    {% if request.user.is_staff %}
+    <script src="{% static 'js/push_subscribe.js' %}"></script>
+    {% endif %}
+  </body>
+</html>

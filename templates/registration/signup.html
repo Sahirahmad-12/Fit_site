@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Sign UP{% endblock %}
+{% block link %}
+<link rel="stylesheet" href="{% static "css/signup.css" %}">
+{% endblock %}
+{% block heading %}Sign Up{% endblock %}
+{% block message %}
+<div id="message-container">
+      {% for message in messages %}
+      <div
+        class="flash-message {% if message.tags == 'success' %} success {% elif message.tags == 'error' %} error {% else %} default {% endif %}"
+      >
+        <span>{{ message }}</span>
+
+        <button class="close-btn">×</button>
+      </div>
+      {% endfor %}
+</div>
+{% endblock %}
+{% block content %}
+<div class="hero-container hero-animate">
+  <form method="POST" action="" class="signup-form">
+    {% csrf_token %}
+
+    <!-- Phone Number -->
+    <div class="form-group">
+      <label>Phone Number</label>
+      <input 
+        type="tel" 
+        name="username" 
+        class="text"
+        value="{{ form.username.value|default:'' }}"
+        required
+        pattern="[0-9]{10}"
+        maxlength="10"
+        minlength="10"
+      />
+      {% if form.username.errors %}
+        <small class="error">{{ form.username.errors.0 }}</small>
+      {% endif %}
+    </div>
+    <!-- Password -->
+    <div class="form-group">
+      <label>Password</label>
+      <input 
+        type="password" 
+        name="password1" 
+        class="text" 
+        required
+        
+      />
+      <small class="password-hint">
+        Must be <strong>8 characters</strong> long &nbsp;·&nbsp; letters &amp; numbers only
+      </small>
+      {% if form.password1.errors %}
+        <small class="error">{{ form.password1.errors.0 }}</small>
+      {% endif %}
+    </div>
+
+    <!-- Confirm Password -->
+    <div class="form-group">
+      <label>Confirm Password</label>
+      <input 
+        type="password" 
+        name="password2" 
+        class="text" 
+        required 
+      />
+      {% if form.password2.errors %}
+        <small class="error">{{ form.password2.errors.0 }}</small>
+      {% endif %}
+    </div>
+
+    <button type="submit" class="submit-btn" id="signup-btn">
+      Create Account
+    </button>
+
+    <p class="login-text">
+      Already have an account?
+      <a href="{% url 'login' %}">Login</a>
+    </p>
+  </form>
+</div>
+<script src="{% static 'js/messages.js' %}"></script>
+<script nonce="{{ request.csp_nonce }}">
+  document.querySelector('.signup-form').addEventListener('submit', function () {
+    const btn = document.getElementById('signup-btn');
+    btn.disabled = true;
+    btn.textContent = 'Creating Account...';
+    btn.style.opacity = '0.6';
+    btn.style.cursor = 'not-allowed';
+  });
+</script>
+{% endblock %}
+

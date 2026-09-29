@@ -1,0 +1,842 @@
+<!doctype html>
+{% load static %}
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ product.name }} — EnterGYM Store</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="{% static 'images/favicons.png' %}"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+
+    <style>
+      /* ─── TOKENS ──────────────────────────────────── */
+      :root {
+        --bg:           #080808;
+        --surface:      #111111;
+        --surface-2:    #181818;
+        --border:       rgba(255,255,255,.07);
+        --orange:       #ff5a00;
+        --orange-dim:   rgba(255,90,0,.12);
+        --orange-glow:  rgba(255,90,0,.25);
+        --green:        #5de87c;
+        --green-bg:     #1a3d25;
+        --green-border: rgba(93,232,124,.2);
+        --text-hi:      #f5f5f5;
+        --text-mid:     #999;
+        --text-lo:      #555;
+        --radius-lg:    20px;
+        --radius-md:    12px;
+        --radius-sm:    8px;
+        --radius-pill:  40px;
+        --font-display: "Barlow Condensed", sans-serif;
+        --font-body:    "Barlow", sans-serif;
+        --ease:         cubic-bezier(.4,0,.2,1);
+        --t:            .22s;
+
+        /* spacing scale */
+        --space-xs:  8px;
+        --space-sm:  12px;
+        --space-md:  20px;
+        --space-lg:  32px;
+        --space-xl:  48px;
+        --space-2xl: 72px;
+      }
+
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        background: var(--bg);
+        color: var(--text-hi);
+        font-family: var(--font-body);
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+
+      /* ─── NAVBAR ──────────────────────────────────── */
+      .navbar-custom {
+        background: rgba(8,8,8,.92);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 0;
+        z-index: 200;
+        padding: 0;
+      }
+      .navbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 60px;
+        padding: 0 var(--space-md);
+      }
+      .navbar-brand {
+        font-family: var(--font-display);
+        font-weight: 900;
+        font-size: clamp(1.1rem, 3vw, 1.6rem);
+        letter-spacing: -.01em;
+        color: var(--text-hi) !important;
+        text-decoration: none;
+        text-transform: uppercase;
+        white-space: nowrap;
+        line-height: 1;
+      }
+      .navbar-brand .accent { color: var(--orange); }
+
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: clamp(10px, 2vw, 20px);
+        flex-shrink: 0;
+      }
+      .nav-link-custom {
+        font-family: var(--font-display);
+        font-size: clamp(.65rem, 1.5vw, .78rem);
+        font-weight: 700;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        color: var(--text-mid);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+        transition: color var(--t) var(--ease);
+        padding: 4px 0;
+      }
+      .nav-link-custom:hover { color: var(--text-hi); }
+      .nav-link-custom i { font-size: .9em; }
+
+      /* ─── PAGE WRAPPER ────────────────────────────── */
+      .detail-page {
+        padding: clamp(24px, 5vw, 64px) 0 clamp(40px, 8vw, 96px);
+      }
+
+      /* ─── BREADCRUMB ──────────────────────────────── */
+      .breadcrumb-strip {
+        font-family: var(--font-display);
+        font-size: .7rem;
+        font-weight: 700;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+        color: var(--text-lo);
+        margin-bottom: clamp(20px, 4vw, 40px);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .breadcrumb-strip a {
+        color: var(--text-lo);
+        text-decoration: none;
+        transition: color var(--t);
+      }
+      .breadcrumb-strip a:hover { color: var(--orange); }
+      .breadcrumb-strip .current { color: var(--text-mid); }
+
+      /* ─── TWO-COLUMN GRID ─────────────────────────── */
+      .product-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: clamp(24px, 4vw, 56px);
+        align-items: start;
+      }
+      @media (max-width: 767px) {
+        .product-grid { grid-template-columns: 1fr; }
+      }
+
+      /* ─── IMAGE PANEL ─────────────────────────────── */
+      .image-panel {
+        position: sticky;
+        top: 76px;
+        align-self: flex-start;
+      }
+      @media (max-width: 767px) {
+        .image-panel { position: static; }
+      }
+      .image-frame {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        position: relative;
+        aspect-ratio: 1/1;
+      }
+      .image-frame img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform .55s var(--ease);
+      }
+      .image-frame:hover img { transform: scale(1.04); }
+      .image-glow {
+        position: absolute;
+        inset: -1px;
+        border-radius: var(--radius-lg);
+        box-shadow:
+          0 0 70px rgba(255,90,0,.08),
+          inset 0 0 40px rgba(0,0,0,.45);
+        pointer-events: none;
+        z-index: 2;
+      }
+      .img-badge {
+        position: absolute;
+        top: 14px;
+        left: 14px;
+        z-index: 3;
+        background: var(--green-bg);
+        color: var(--green);
+        border: 1px solid var(--green-border);
+        padding: 5px 14px;
+        border-radius: var(--radius-pill);
+        font-family: var(--font-display);
+        font-size: .7rem;
+        font-weight: 700;
+        letter-spacing: .08em;
+        white-space: nowrap;
+      }
+
+      /* ─── INFO PANEL ──────────────────────────────── */
+      .info-panel { display: flex; flex-direction: column; }
+
+      .product-eyebrow {
+        font-family: var(--font-display);
+        font-size: .7rem;
+        font-weight: 700;
+        letter-spacing: .22em;
+        text-transform: uppercase;
+        color: var(--orange);
+        margin-bottom: 10px;
+      }
+      .product-title {
+        font-family: var(--font-display);
+        font-weight: 900;
+        font-size: clamp(1.8rem, 4vw, 2.8rem);
+        line-height: .95;
+        letter-spacing: -.01em;
+        text-transform: uppercase;
+        margin-bottom: var(--space-md);
+        color: var(--text-hi);
+        word-break: break-word;
+      }
+
+      /* ─── PRICE ───────────────────────────────────── */
+      .price-block {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 6px;
+      }
+      .price-current {
+        font-family: var(--font-display);
+        font-size: clamp(2rem, 5vw, 2.8rem);
+        font-weight: 900;
+        color: var(--text-hi);
+        letter-spacing: -.02em;
+        line-height: 1;
+      }
+      .price-original {
+        font-size: 1rem;
+        color: var(--text-lo);
+        text-decoration: line-through;
+      }
+      .price-savings {
+        font-family: var(--font-display);
+        font-size: .9rem;
+        font-weight: 700;
+        color: var(--green);
+        letter-spacing: .03em;
+      }
+      .price-tax {
+        font-size: .72rem;
+        color: var(--text-lo);
+        margin-bottom: var(--space-lg);
+        font-family: var(--font-display);
+        letter-spacing: .06em;
+        text-transform: uppercase;
+      }
+
+      /* ─── DIVIDER ─────────────────────────────────── */
+      .styled-hr {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: var(--space-md) 0;
+      }
+
+      /* ─── FIELD LABEL ─────────────────────────────── */
+      .field-label {
+        font-family: var(--font-display);
+        font-size: .68rem;
+        font-weight: 700;
+        letter-spacing: .18em;
+        text-transform: uppercase;
+        color: var(--text-lo);
+        margin-bottom: 10px;
+        display: block;
+      }
+
+      /* ─── FLAVOR CHIPS ────────────────────────────── */
+      #flavor-section { margin-bottom: var(--space-lg); }
+      .flavor-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .btn-check {
+        position: absolute;
+        clip: rect(0,0,0,0);
+        pointer-events: none;
+      }
+      .flavor-chip {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        padding: 10px 16px;
+        background: transparent;
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-md);
+        color: var(--text-mid);
+        cursor: pointer;
+        transition:
+          border-color var(--t) var(--ease),
+          color var(--t) var(--ease),
+          background var(--t) var(--ease),
+          transform var(--t) var(--ease);
+        font-family: var(--font-body);
+        font-size: .85rem;
+        font-weight: 600;
+        min-width: 88px;
+        text-align: center;
+        user-select: none;
+        -webkit-user-select: none;
+        line-height: 1.3;
+      }
+      .flavor-chip:hover {
+        border-color: rgba(255,90,0,.4);
+        color: var(--text-hi);
+        transform: translateY(-2px);
+      }
+      .btn-check:checked + .flavor-chip {
+        border-color: var(--orange);
+        color: var(--orange);
+        background: var(--orange-dim);
+        transform: translateY(-2px);
+      }
+      .flavor-chip .chip-price {
+        font-size: .72rem;
+        font-weight: 500;
+        opacity: .7;
+        font-family: var(--font-display);
+        letter-spacing: .04em;
+      }
+
+      /* ─── STOCK ───────────────────────────────────── */
+      .stock-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        font-family: var(--font-display);
+        font-size: .78rem;
+        font-weight: 700;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+      }
+      .stock-indicator.in-stock  { color: var(--green); }
+      .stock-indicator.out-stock { color: #e57373; }
+      .stock-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .in-stock  .stock-dot { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse-green 2s infinite; }
+      .out-stock .stock-dot { background: #e57373; }
+      @keyframes pulse-green {
+        0%,100% { opacity: 1; }
+        50%      { opacity: .35; }
+      }
+
+      /* ─── QTY ─────────────────────────────────────── */
+      .qty-row {
+        display: flex;
+        align-items: flex-end;
+        gap: var(--space-md);
+        margin-bottom: var(--space-lg);
+        flex-wrap: wrap;
+      }
+      .qty-wrap { display: flex; flex-direction: column; gap: 8px; }
+      .qty-control {
+        display: flex;
+        align-items: center;
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        width: fit-content;
+      }
+      .qty-btn {
+        width: 42px;
+        height: 42px;
+        background: transparent;
+        border: none;
+        color: var(--text-mid);
+        font-size: 1.05rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background var(--t), color var(--t);
+        flex-shrink: 0;
+      }
+      .qty-btn:hover  { background: var(--surface-2); color: var(--text-hi); }
+      .qty-btn:active { background: var(--surface-2); }
+      .qty-input {
+        width: 52px;
+        height: 42px;
+        background: transparent;
+        border: none;
+        border-left:  1px solid var(--border);
+        border-right: 1px solid var(--border);
+        color: var(--text-hi);
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: .95rem;
+        text-align: center;
+        outline: none;
+        -moz-appearance: textfield;
+      }
+      .qty-input::-webkit-inner-spin-button,
+      .qty-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+      /* ─── BUY BUTTON ──────────────────────────────── */
+      .btn-buy {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        padding: 17px 20px;
+        background: var(--orange);
+        border: 1.5px solid var(--orange);
+        border-radius: var(--radius-md);
+        color: #fff;
+        font-family: var(--font-display);
+        font-size: clamp(.78rem, 2vw, .92rem);
+        font-weight: 700;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        transition:
+          background var(--t) var(--ease),
+          border-color var(--t) var(--ease),
+          transform var(--t) var(--ease),
+          box-shadow var(--t) var(--ease);
+        -webkit-tap-highlight-color: transparent;
+      }
+      .btn-buy::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,.14) 0%, transparent 60%);
+        pointer-events: none;
+      }
+      .btn-buy:hover:not(:disabled) {
+        background: #e65200;
+        border-color: #e65200;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 28px var(--orange-glow);
+      }
+      .btn-buy:active:not(:disabled) { transform: translateY(0); }
+      .btn-buy:disabled {
+        opacity: .45;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      /* ─── TRUST STRIP ─────────────────────────────── */
+      .trust-strip {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-top: var(--space-lg);
+        padding-top: var(--space-md);
+        border-top: 1px solid var(--border);
+      }
+      .trust-item {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-family: var(--font-display);
+        font-size: .72rem;
+        font-weight: 600;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--text-lo);
+      }
+      .trust-item i { font-size: .9rem; }
+
+      /* ─── DESCRIPTION ─────────────────────────────── */
+      .description-section {
+        margin-top: clamp(40px, 6vw, 80px);
+        padding-top: 36px;
+        border-top: 1px solid var(--border);
+      }
+      .section-heading {
+        font-family: var(--font-display);
+        font-weight: 900;
+        font-size: clamp(1.2rem, 3vw, 1.5rem);
+        text-transform: uppercase;
+        letter-spacing: .02em;
+        margin-bottom: var(--space-lg);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .section-heading::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+      .description-body {
+        color: var(--text-mid);
+        line-height: 1.8;
+        font-size: .93rem;
+        max-width: 800px;
+      }
+      .description-body p { margin-bottom: 1em; }
+
+      /* ─── ANIMATIONS ──────────────────────────────── */
+      @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(18px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      .fade-in   { animation: fadeUp .45s var(--ease) both; }
+      .fade-in-1 { animation-delay: .05s; }
+      .fade-in-2 { animation-delay: .14s; }
+
+      /* ─── BREAKPOINT: TABLET (768–991) ────────────── */
+      @media (min-width: 768px) and (max-width: 991px) {
+        .product-grid { gap: 28px; }
+        .image-panel  { top: 72px; }
+        .trust-strip  { gap: 10px; }
+        .trust-item   { font-size: .66rem; }
+      }
+
+      /* ─── BREAKPOINT: MOBILE (≤767) ───────────────── */
+      @media (max-width: 767px) {
+        .image-panel { margin-bottom: var(--space-md); }
+
+        /* let flavors fill width evenly on mobile */
+        .flavor-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+          gap: 8px;
+        }
+        .flavor-chip {
+          min-width: auto;
+          width: 100%;
+          padding: 10px 8px;
+        }
+
+        /* trust items full-row on tiny screens */
+        .trust-item { flex: 1 1 calc(50% - 7px); }
+
+        .qty-row { gap: 14px; }
+      }
+
+      /* ─── BREAKPOINT: SMALL MOBILE (≤480) ─────────── */
+      @media (max-width: 480px) {
+        :root {
+          --radius-lg: 16px;
+          --radius-md: 10px;
+        }
+        .navbar-inner { height: 52px; }
+        .image-panel  { top: 68px; }
+
+        .flavor-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .qty-btn   { width: 40px; height: 40px; }
+        .qty-input { width: 48px; height: 40px; }
+
+        .trust-item { flex: 1 1 100%; }
+
+        .btn-buy { padding: 15px; letter-spacing: .08em; }
+      }
+
+      /* ─── BREAKPOINT: EXTRA-SMALL (≤360) ──────────── */
+      @media (max-width: 360px) {
+        .flavor-grid { grid-template-columns: 1fr; }
+        .nav-link-custom span { display: none; } /* icon-only on tiny nav */
+      }
+
+      /* ─── SAFE AREA (notched phones) ──────────────── */
+      @supports (padding: env(safe-area-inset-left)) {
+        .navbar-inner,
+        .container {
+          padding-left:  max(var(--space-md), env(safe-area-inset-left));
+          padding-right: max(var(--space-md), env(safe-area-inset-right));
+        }
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- ── NAVBAR ──────────────────────────────────── -->
+    <nav class="navbar-custom">
+      <div class="navbar-inner container">
+        <a class="navbar-brand" href="{% url 'product_list' %}">
+          EnterGYM <span class="accent">Store</span>
+        </a>
+        <div class="nav-right">
+          <a href="{% url 'my_orders' %}" class="nav-link-custom">
+            <i class="bi bi-box-seam"></i>
+            <span>My Orders</span>
+          </a>
+          <a href="{% url 'product_list' %}" class="nav-link-custom">
+            <i class="bi bi-arrow-left"></i>
+            <span>All Products</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ── MAIN ────────────────────────────────────── -->
+    <main class="container detail-page">
+
+      <!-- Breadcrumb -->
+      <div class="breadcrumb-strip">
+        <a href="{% url 'product_list' %}">Store</a>
+        <span>›</span>
+        <span class="current">{{ product.name }}</span>
+      </div>
+
+      <!-- Two-column product grid -->
+      <div class="product-grid">
+
+        <!-- IMAGE -->
+        <div class="fade-in fade-in-1">
+          <div class="image-panel">
+            <div class="image-frame">
+              {% if product.discount > 0 %}
+                <span class="img-badge">{{ product.discount }}% OFF</span>
+              {% endif %}
+              {% if product.image %}
+                <img
+                  src="{{ product.image.url }}"
+                  alt="{{ product.name }}"
+                  width="600" height="600"
+                  loading="eager" decoding="async"
+                />
+              {% else %}
+                <img
+                  src="https://images.unsplash.com/photo-1596716075191-236f0df56070?q=80&w=800&auto=format&fit=crop"
+                  alt="Protein Supplement"
+                  width="600" height="600"
+                  loading="eager" decoding="async"
+                />
+              {% endif %}
+              <div class="image-glow"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- INFO -->
+        <div class="fade-in fade-in-2">
+          <div class="info-panel">
+
+            <p class="product-eyebrow">Supplements</p>
+            <h1 class="product-title">{{ product.name }}</h1>
+
+            <!-- Price -->
+            <div class="price-block">
+              <span class="price-current" id="price-display">
+                ₹{{ product.discounted_price|floatformat:0 }}
+              </span>
+              {% if product.discount > 0 %}
+                <span class="price-original">₹{{ product.base_price|floatformat:0 }}</span>
+                <span class="price-savings">{{ product.discount }}% off</span>
+              {% endif %}
+            </div>
+            <p class="price-tax">Inclusive of all taxes</p>
+
+            <hr class="styled-hr" />
+
+            <!-- Flavours -->
+            {% if product.flavors.all %}
+            <div id="flavor-section">
+              <span class="field-label">Choose Flavour</span>
+              <div class="flavor-grid">
+                {% for flavor in product.flavors.all %}
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="flavor_select"
+                  id="flavor_{{ flavor.id }}"
+                  value="{{ flavor.id }}"
+                  data-stock="{{ flavor.available_stock }}"
+                  {% if forloop.first %}checked{% endif %}
+                />
+                <label
+                  class="flavor-chip"
+                  for="flavor_{{ flavor.id }}"
+                  data-price="{{ flavor.final_price|floatformat:0 }}"
+                  data-stock="{{ flavor.available_stock }}"
+                >
+                  {{ flavor.name }}
+                  <span class="chip-price">₹{{ flavor.final_price|floatformat:0 }}</span>
+                </label>
+                {% endfor %}
+              </div>
+            </div>
+            <hr class="styled-hr" />
+            {% endif %}
+
+            <!-- Qty + Stock -->
+            <div class="qty-row">
+              <div class="qty-wrap">
+                <span class="field-label">Quantity</span>
+                <div class="qty-control">
+                  <button type="button" class="qty-btn" id="qty-minus" aria-label="Decrease quantity">
+                    <i class="bi bi-dash"></i>
+                  </button>
+                  <input
+                    type="number"
+                    class="qty-input"
+                    id="qty-input"
+                    min="1"
+                    max="{{ product.get_available_stock }}"
+                    value="1"
+                    aria-label="Quantity"
+                  />
+                  <button type="button" class="qty-btn" id="qty-plus" aria-label="Increase quantity">
+                    <i class="bi bi-plus"></i>
+                  </button>
+                </div>
+              </div>
+
+              {% if product.in_stock %}
+                <div class="stock-indicator in-stock">
+                  <span class="stock-dot"></span> In Stock
+                </div>
+              {% else %}
+                <div class="stock-indicator out-stock">
+                  <span class="stock-dot"></span> Out of Stock
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- Buy Now -->
+            <form method="post" action="{% url 'confirm_order' product.id %}" id="form-buy">
+              {% csrf_token %}
+              <input type="hidden" name="flavor"   id="buy-flavor-input"
+                value="{% if product.flavors.all %}{{ product.flavors.first.id }}{% else %}standard{% endif %}" />
+              <input type="hidden" name="quantity" id="buy-qty-input" value="1" />
+              <button
+                type="submit"
+                class="btn-buy"
+                {% if not product.in_stock %}disabled{% endif %}
+                aria-label="Buy now"
+              >
+                <i class="bi bi-lightning-fill"></i>
+                {% if product.in_stock %}Buy Now — Deliver to Gym{% else %}Out of Stock{% endif %}
+              </button>
+            </form>
+
+            <!-- Trust -->
+            <div class="trust-strip">
+              <div class="trust-item"><i class="bi bi-shield-check"></i> Authentic Product</div>
+              <div class="trust-item"><i class="bi bi-building"></i> Gym Delivery in 24h</div>
+              <div class="trust-item"><i class="bi bi-cash-coin"></i> Pay at Pickup</div>
+            </div>
+
+          </div><!-- /info-panel -->
+        </div>
+
+      </div><!-- /product-grid -->
+
+      <!-- Description -->
+      <div class="description-section">
+        <h2 class="section-heading">Product Details</h2>
+        <div class="description-body">{{ product.description|linebreaks }}</div>
+      </div>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer ></script>
+    <script nonce="{{ request.csp_nonce }}" >
+    (function () {
+      const priceDisplay = document.getElementById("price-display");
+      const qtyInput     = document.getElementById("qty-input");
+      const buyFlavor    = document.getElementById("buy-flavor-input");
+      const buyQty       = document.getElementById("buy-qty-input");
+      if (!qtyInput) return;
+
+      let maxQty = parseInt(qtyInput.max, 10) || 1;
+
+      function clamp(v) {
+        return Math.min(Math.max(v, 1), maxQty);
+      }
+      function setQty(v) {
+        qtyInput.value = v;
+        buyQty.value   = v;
+      }
+
+      /* Flavor → update price display + max qty */
+      document.querySelectorAll('input[name="flavor_select"]').forEach(function (radio) {
+        radio.addEventListener("change", function () {
+          buyFlavor.value = this.value;
+          const lbl = document.querySelector('label[for="' + this.id + '"]');
+          if (!lbl) return;
+          if (lbl.dataset.price && priceDisplay)
+            priceDisplay.textContent = "₹" + lbl.dataset.price;
+          if (lbl.dataset.stock) {
+            maxQty = parseInt(lbl.dataset.stock, 10) || 1;
+            qtyInput.max = maxQty;
+            setQty(clamp(parseInt(qtyInput.value, 10)));
+          }
+        });
+      });
+
+      document.getElementById("qty-minus").addEventListener("click", function () {
+        setQty(clamp(parseInt(qtyInput.value, 10) - 1));
+      });
+      document.getElementById("qty-plus").addEventListener("click", function () {
+        setQty(clamp(parseInt(qtyInput.value, 10) + 1));
+      });
+      qtyInput.addEventListener("change", function () {
+        setQty(clamp(parseInt(this.value, 10) || 1));
+      });
+
+      setQty(1);
+    })();
+    </script>
+
+  </body>
+</html>

@@ -1,0 +1,214 @@
+/* ===== HERO CONTAINER ===== */
+.hero-container {
+  position: relative;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 1px;
+  transform: translateY(50px);
+}
+#message-container {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  width: 100%;
+  max-width: 400px;
+  padding: 0 16px;
+}
+
+/* Message box */
+.flash-message {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+/* Success */
+.flash-message.success {
+  background: linear-gradient(to right, #22c55e, #059669);
+}
+
+/* Error */
+.flash-message.error {
+  background: linear-gradient(to right, #ef4444, #b91c1c);
+}
+
+/* Default */
+.flash-message.default {
+  background-color: #1f2937;
+}
+
+/* Close button */
+.close-btn {
+  margin-left: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  background: none;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.close-btn:hover {
+  transform: scale(1.1);
+}
+/* ===== FORM (GLASS EFFECT) ===== */
+.signup-form {
+  width: 90%;
+  max-width: 400px;
+  padding: 32px;
+
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(4px);
+
+  border: 1px solid rgba(249, 115, 22, 0.2);
+  border-radius: 16px;
+  will-change: transform, opacity;
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(249, 115, 22, 0.25);
+}
+.form-group small.error {
+  display: block;
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 6px;
+  font-weight: 500;
+}
+/* ===== FORM GROUP ===== */
+.form-group {
+  margin-bottom: 20px;
+}
+.text {
+  font-size: 18px;
+  font-weight: 600;
+}
+.form-group label {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: rgba(255, 255, 255, 0.8);
+}
+/* ===== PASSWORD HINT ===== */
+.password-hint {
+  display: block;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.6;
+}
+
+.password-hint strong {
+  color: #f97316;
+  font-weight: 700;
+}
+/* ===== INPUT FIELDS ===== */
+.form-group input {
+  width: 92%;
+  height: 30px;
+  padding: 12px 16px;
+
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+
+  outline: none;
+  transition: 0.3s;
+}
+
+.form-group input:focus {
+  border-color: #f97316;
+}
+.submit-btn:disabled {
+  background: #c2550f;
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: 0.6;
+}
+/* ===== BUTTON ===== */
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: larger;
+  border: none;
+  border-radius: 999px;
+
+  background: #f97316;
+  color: #000;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: 0.3s;
+
+  box-shadow: 0 0 25px rgba(249, 115, 22, 0.5);
+}
+
+.submit-btn:hover {
+  background: #ea580c;
+}
+
+/* ===== LOGIN TEXT ===== */
+.login-text {
+  text-align: center;
+  font-size: 15px;
+  margin-top: 24px;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 800;
+}
+
+.login-text a {
+  color: #fb923c;
+  text-decoration: none;
+}
+
+.login-text a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .signup-form {
+    width: 76%;
+    max-width: 400px;
+    padding: 32px;
+
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(2px);
+
+    border: 1px solid rgba(249, 115, 22, 0.2);
+    border-radius: 16px;
+    will-change: transform, opacity;
+
+    box-shadow:
+      0 20px 60px rgba(0, 0, 0, 0.6),
+      0 0 40px rgba(249, 115, 22, 0.25);
+  }
+}
+.hero-animate {
+  opacity: 0;
+  transform: translateY(40px);
+  animation: smoothFade 0.5s ease-out forwards;
+}
+
+@keyframes smoothFade {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

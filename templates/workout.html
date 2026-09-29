@@ -1,0 +1,139 @@
+{% extends "base.html" %} {% load static %} {% block title %}Workout
+{% endblock %} {% block link %}
+<link rel="stylesheet" href="{% static 'css/workout.css' %}" />
+{% endblock %} {% block content %}
+
+<div class="workout-container hero-animate">
+
+  <div class="workout-eyebrow">Training Library</div>
+  <div class="workout-title">Workout Videos</div>
+  <div class="workout-sub">Select a muscle group and start training.</div>
+
+  <!-- Category pills -->
+  <div class="category-buttons">
+    <a href="#back">Back</a>
+    <a href="#chest">Chest</a>
+    <a href="#leg">Legs</a>
+    <a href="#biceps">Biceps</a>
+    <a href="#triceps">Triceps</a>
+    <a href="#shoulder">Shoulder</a>
+    <a href="#forearms">Forearms</a>
+  </div>
+
+  <!-- BACK -->
+  <section class="workout-section" id="back">
+    <div class="section-header"><span>🏋 Back</span></div>
+    <div class="video-grid">
+      <div class="video-card">
+        <video controls muted preload="none" poster="{% static 'images/workout/back_4.png' %}">
+          <source src="{% static 'workout/back_1.mp4' %}" />
+        </video>
+      </div>
+      <div class="video-card">
+        <video controls muted preload="none" poster="{% static 'images/workout/back_3.png' %}">
+          <source src="{% static 'workout/back_2.mp4' %}" />
+        </video>
+      </div>
+      <div class="video-card">
+        <video controls muted preload="none" poster="{% static 'images/workout/back_2.png' %}">
+          <source src="{% static 'workout/back_3.mp4' %}" />
+        </video>
+      </div>
+      <div class="video-card">
+        <video controls muted preload="none" poster="{% static 'images/workout/back_1.png' %}">
+          <source src="{% static 'workout/back_4.mp4' %}" />
+        </video>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHEST -->
+  <section class="workout-section" id="chest">
+    <div class="section-header"><span>💪 Chest</span></div>
+    <div class="video-grid">
+      <div class="video-card">
+        <video controls muted preload="none" poster="{% static 'images/workout/chest_2.png' %}">
+          <source src="{% static 'workout/chest_1.mp4' %}" />
+        </video>
+      </div>
+      <div class="video-card">
+        <video controls muted preload="none" poster="{% static 'images/workout/chest_1.png' %}">
+          <source src="{% static 'workout/chest_2.mp4' %}" />
+        </video>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEGS -->
+  <section class="workout-section" id="leg">
+    <div class="section-header"><span>🦵 Legs</span></div>
+    <div class="video-grid">
+      <div class="video-card">
+        <video controls muted preload="none" poster="{% static 'images/workout/leg_2.png' %}">
+          <source src="{% static 'workout/leg_1.mp4' %}" />
+        </video>
+      </div>
+      <div class="video-card">
+        <video controls muted preload="none" poster="{% static 'images/workout/leg_1.png' %}">
+          <source src="{% static 'workout/leg_2.mp4' %}" />
+        </video>
+      </div>
+    </div>
+  </section>
+
+  <!-- BICEPS -->
+  <section class="workout-section" id="biceps">
+    <div class="section-header"><span>💪 Biceps</span></div>
+    <div class="video-grid">
+      <div class="video-card">
+        <video controls muted preload="none" poster="{% static 'images/workout/biceps_2.png' %}">
+          <source src="{% static 'workout/biceps_1.mp4' %}" />
+        </video>
+      </div>
+      <div class="video-card">
+        <video controls muted preload="none" poster="{% static 'images/workout/biceps_1.png' %}">
+          <source src="{% static 'workout/biceps_3.mp4' %}" />
+        </video>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRICEPS -->
+  <section class="workout-section" id="triceps">
+    <div class="section-header"><span>🔱 Triceps</span></div>
+    <div class="video-grid">
+      <div class="video-card">
+        <video controls muted preload="none" poster="{% static 'images/workout/triceps.png' %}">
+          <source src="{% static 'workout/triceps_1.mp4' %}" />
+        </video>
+      </div>
+    </div>
+  </section>
+
+  <!-- SHOULDER -->
+  <section class="workout-section" id="shoulder">
+    <div class="section-header"><span>🏅 Shoulder</span></div>
+    <div class="video-grid">
+      <div class="video-card">
+        <video controls muted preload="none" poster="{% static 'images/workout/shoulder.png' %}">
+          <source src="{% static 'workout/shoulder_1.mp4' %}" />
+        </video>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOREARMS -->
+  <section class="workout-section" id="forearms">
+    <div class="section-header"><span>🤜 Forearms</span></div>
+    <div class="video-grid">
+      <div class="video-card">
+        <video controls muted preload="none" poster="{% static 'images/workout/fourarm.png' %}">
+          <source src="{% static 'workout/forearm.mp4' %}" />
+        </video>
+      </div>
+    </div>
+  </section>
+
+</div>
+<script src="{% static 'js/messages.js' %}"></script>
+{% endblock %}

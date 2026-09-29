@@ -1,0 +1,597 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@700;800&display=swap');
+
+  :root {
+    --glass-base:        rgba(12, 18, 32, 0.72);
+    --glass-hover:       rgba(255, 255, 255, 0.06);
+    --glass-border:      rgba(255, 255, 255, 0.09);
+    --glass-border-lit:  rgba(255, 255, 255, 0.18);
+    --accent:            #f04005;
+    --accent-glow:       rgba(240, 64, 5, 0.25);
+    --accent-orange:     #f97316;
+    --accent-hot:        #ff6b35;
+    --text-primary:      #e8ecf3;
+    --text-secondary:    #8b95a8;
+    --text-muted:        #4a5568;
+    --success:           #10b981;
+    --info:              #3b82f6;
+    --warning:           #f59e0b;
+    --purple:            #a855f7;
+    --shadow-card:       0 8px 32px rgba(0,0,0,0.5), 0 1px 0 var(--glass-border-lit) inset;
+    --blur-md:           blur(14px);
+    --blur-sm:           blur(8px);
+    --ease-spring:       cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-out:          cubic-bezier(0.16, 1, 0.3, 1);
+    --r-md:              12px;
+    --r-lg:              16px;
+  }
+
+  #dash-root {
+    font-family: 'Barlow', system-ui, sans-serif;
+    color: var(--text-primary);
+    padding: 4px 0 48px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0);    }
+  }
+  .anim   { animation: fadeUp 0.5s var(--ease-out) both; }
+  .anim-1 { animation-delay: 0.05s; }
+  .anim-2 { animation-delay: 0.10s; }
+  .anim-3 { animation-delay: 0.15s; }
+  .anim-4 { animation-delay: 0.20s; }
+  .anim-5 { animation-delay: 0.25s; }
+  .anim-6 { animation-delay: 0.30s; }
+  .anim-7 { animation-delay: 0.35s; }
+
+  /* ── Page Header ── */
+  .dash-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .dash-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    line-height: 1;
+    margin: 0 0 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .dash-title span.accent { color: var(--accent-orange); }
+
+  .dash-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    background: rgba(240, 64, 5, 0.12);
+    border: 1px solid rgba(240, 64, 5, 0.35);
+    color: var(--accent-hot);
+    padding: 3px 9px;
+    border-radius: 20px;
+  }
+  .dash-live::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1);    box-shadow: 0 0 0 0 rgba(240,64,5,0.4); }
+    50%       { opacity: 0.8; transform: scale(1.2); box-shadow: 0 0 0 4px rgba(240,64,5,0); }
+  }
+
+  .dash-subtitle {
+    font-size: 11.5px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .dash-timestamp {
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--glass-base);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--r-md);
+    padding: 6px 12px;
+    backdrop-filter: var(--blur-sm);
+    letter-spacing: 0.04em;
+  }
+
+  /* ── KPI Strip ── */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .kpi-card {
+    background: var(--glass-base);
+    backdrop-filter: var(--blur-md);
+    -webkit-backdrop-filter: var(--blur-md);
+    border: 1px solid var(--glass-border);
+    border-top-color: var(--glass-border-lit);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-card);
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+    transition: transform 0.22s var(--ease-spring),
+                box-shadow 0.2s var(--ease-out),
+                border-color 0.2s;
+  }
+  .kpi-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-card), 0 12px 30px rgba(0,0,0,0.4);
+    border-color: rgba(255,255,255,0.14);
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--kpi-accent, var(--accent-orange));
+    box-shadow: 0 0 12px var(--kpi-glow, var(--accent-glow));
+  }
+  .kpi-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at top left, var(--kpi-tint, rgba(240,115,22,0.06)) 0%, transparent 65%);
+    pointer-events: none;
+  }
+
+  .kpi-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .kpi-value {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: var(--kpi-accent, var(--accent-orange));
+    line-height: 1;
+    margin-bottom: 5px;
+  }
+  .kpi-sub {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    letter-spacing: 0.02em;
+  }
+  .kpi-icon {
+    position: absolute;
+    right: 16px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 40px;
+    opacity: 0.07;
+    transition: opacity 0.2s, transform 0.2s;
+    line-height: 1;
+  }
+  .kpi-card:hover .kpi-icon {
+    opacity: 0.13;
+    transform: translateY(-50%) scale(1.08);
+  }
+
+  /* ── Pending Alert Banner ── */
+  .pending-banner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.30);
+    border-radius: var(--r-lg);
+    padding: 13px 20px;
+    margin-bottom: 16px;
+    backdrop-filter: var(--blur-sm);
+  }
+  .pending-banner-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .pending-banner-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fcd34d;
+    letter-spacing: 0.02em;
+  }
+  .pending-banner-text span {
+    color: #fbbf24;
+    font-weight: 800;
+  }
+  .pending-banner-badge {
+    margin-left: auto;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #f59e0b;
+    border: 1px solid rgba(245,158,11,0.4);
+    background: rgba(245,158,11,0.12);
+    padding: 4px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  /* ── Chart Grid ── */
+  .chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .chart-card {
+    background: var(--glass-base);
+    backdrop-filter: var(--blur-md);
+    -webkit-backdrop-filter: var(--blur-md);
+    border: 1px solid var(--glass-border);
+    border-top-color: var(--glass-border-lit);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-card);
+    padding: 18px 20px;
+    overflow: hidden;
+    transition: box-shadow 0.2s var(--ease-out), border-color 0.2s;
+  }
+  .chart-card:hover {
+    border-color: rgba(255,255,255,0.13);
+    box-shadow: var(--shadow-card), 0 0 0 1px var(--glass-border-lit);
+  }
+  .chart-card.wide { grid-column: span 2; }
+
+  .chart-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .chart-card-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+  }
+
+  .chart-badge {
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 20px;
+    border: 1px solid;
+  }
+  .badge-orange { color: var(--accent-hot);   border-color: rgba(240,64,5,0.35);   background: rgba(240,64,5,0.1);   }
+  .badge-green  { color: #34d399;             border-color: rgba(52,211,153,0.3);  background: rgba(16,185,129,0.1); }
+  .badge-blue   { color: #60a5fa;             border-color: rgba(96,165,250,0.3);  background: rgba(59,130,246,0.1); }
+  .badge-purple { color: #c084fc;             border-color: rgba(168,85,247,0.3);  background: rgba(168,85,247,0.1); }
+
+  canvas { max-height: 240px; }
+
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--glass-border), transparent);
+    margin: 18px 0;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 1100px) {
+    .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 960px) {
+    .chart-grid  { grid-template-columns: 1fr; }
+    .chart-card.wide { grid-column: span 1; }
+  }
+  @media (max-width: 540px) {
+    .kpi-strip  { grid-template-columns: 1fr 1fr; }
+    .kpi-value  { font-size: 26px; }
+    .dash-title { font-size: 22px; }
+  }
+</style>
+
+<div id="dash-root">
+
+  <!-- ── Header ── -->
+  <div class="dash-header anim anim-1">
+    <div class="dash-title-block">
+      <div class="dash-title">
+        Revenue <span class="accent">Dashboard</span>
+        <span class="dash-live">Live</span>
+      </div>
+      <div class="dash-subtitle">EnterGym · Bhilai, Chhattisgarh &nbsp;·&nbsp; Financial Overview</div>
+    </div>
+    <div class="dash-timestamp" id="dash-clock">—</div>
+  </div>
+
+  <!-- ── KPI Strip ── -->
+  <div class="kpi-strip">
+
+    <div class="kpi-card anim anim-2"
+         style="--kpi-accent:var(--accent-orange);
+                --kpi-glow:var(--accent-glow);
+                --kpi-tint:rgba(249,115,22,0.07)">
+      <div class="kpi-label">Monthly Revenue</div>
+      <div class="kpi-value">₹{{ total_revenue|default:"0" }}</div>
+      <div class="kpi-sub">Total earned this month</div>
+      <span class="kpi-icon">₹</span>
+    </div>
+
+    <div class="kpi-card anim anim-3"
+         style="--kpi-accent:#34d399;
+                --kpi-glow:rgba(52,211,153,0.25);
+                --kpi-tint:rgba(16,185,129,0.07)">
+      <div class="kpi-label">Weekly Revenue</div>
+      <div class="kpi-value">₹{{ today_revenue|default:"0" }}</div>
+      <div class="kpi-sub">Last 7 days</div>
+      <span class="kpi-icon">📈</span>
+    </div>
+
+    <div class="kpi-card anim anim-4"
+         style="--kpi-accent:#60a5fa;
+                --kpi-glow:rgba(59,130,246,0.25);
+                --kpi-tint:rgba(59,130,246,0.07)">
+      <div class="kpi-label">Total Members</div>
+      <div class="kpi-value">{{ total_members|default:"0" }}</div>
+      <div class="kpi-sub">All registered users</div>
+      <span class="kpi-icon">👥</span>
+    </div>
+
+    <div class="kpi-card anim anim-5"
+         style="--kpi-accent:#f59e0b;
+                --kpi-glow:rgba(245,158,11,0.25);
+                --kpi-tint:rgba(245,158,11,0.07)">
+      <div class="kpi-label">Pending Dues</div>
+      <div class="kpi-value">₹{{ pending_amount|default:"0" }}</div>
+      <div class="kpi-sub">{{ pending_count|default:"0" }} member{{ pending_count|pluralize }} overdue</div>
+      <span class="kpi-icon">⚠️</span>
+    </div>
+
+  </div>
+
+  <!-- ── Pending Alert Banner ── -->
+  {% if pending_count %}
+  <div class="pending-banner anim anim-5">
+    <span class="pending-banner-icon">🔔</span>
+    <span class="pending-banner-text">
+      <span>{{ pending_count }} member{{ pending_count|pluralize }}</span>
+      have outstanding dues totalling
+      <span>₹{{ pending_amount }}</span> — follow up required.
+    </span>
+    <span class="pending-banner-badge">Action Required</span>
+  </div>
+  {% endif %}
+
+  <div class="section-divider anim anim-5"></div>
+
+  <!-- ── Charts ── -->
+  <div class="chart-grid">
+
+    <div class="chart-card anim anim-5">
+      <div class="chart-card-header">
+        <span class="chart-card-title">Monthly Revenue</span>
+        <span class="chart-badge badge-orange">Bar</span>
+      </div>
+      <canvas id="monthlyChart"></canvas>
+    </div>
+
+    <div class="chart-card anim anim-5">
+      <div class="chart-card-header">
+        <span class="chart-card-title">Daily Revenue · 7 Days</span>
+        <span class="chart-badge badge-green">Line</span>
+      </div>
+      <canvas id="dailyChart"></canvas>
+    </div>
+
+    <div class="chart-card anim anim-6">
+      <div class="chart-card-header">
+        <span class="chart-card-title">Member Growth</span>
+        <span class="chart-badge badge-blue">Line</span>
+      </div>
+      <canvas id="memberChart"></canvas>
+    </div>
+
+    <div class="chart-card anim anim-6">
+      <div class="chart-card-header">
+        <span class="chart-card-title">Payment Analytics</span>
+        <span class="chart-badge badge-purple">Doughnut</span>
+      </div>
+      <canvas id="paymentChart"></canvas>
+    </div>
+
+  </div>
+
+</div><!-- /#dash-root -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script nonce="{{ request.csp_nonce }}" >
+  /* ── Live clock ── */
+  (function tick() {
+    const el = document.getElementById('dash-clock');
+    const now = new Date();
+    el.textContent = now.toLocaleString('en-IN', {
+      weekday: 'short', day: '2-digit', month: 'short',
+      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
+    });
+    setTimeout(tick, 1000);
+  })();
+
+  /* ── Shared Chart.js defaults ── */
+  Chart.defaults.color       = '#8b95a8';
+  Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
+  Chart.defaults.font.family = "'Barlow', sans-serif";
+  Chart.defaults.font.size   = 11;
+
+  const grid    = { color: 'rgba(255,255,255,0.05)', drawBorder: false };
+  const ticks   = { color: '#4a5568', font: { size: 11 } };
+  const tooltip = {
+    backgroundColor: 'rgba(12,18,32,0.92)',
+    borderColor:     'rgba(255,255,255,0.10)',
+    borderWidth:     1,
+    titleColor:      '#e8ecf3',
+    bodyColor:       '#8b95a8',
+    padding:         10,
+    cornerRadius:    8,
+    titleFont:       { family: "'Barlow Condensed'", size: 14, weight: '700' },
+    bodyFont:        { family: "'Barlow'", size: 12 },
+  };
+
+  /* ── Monthly Revenue (Bar) ── */
+  new Chart(document.getElementById('monthlyChart'), {
+    type: 'bar',
+    data: {
+      labels: {{ monthly_labels|safe }},
+      datasets: [{
+        label: 'Revenue ₹',
+        data:   {{ monthly_data|safe }},
+        backgroundColor:      'rgba(249,115,22,0.65)',
+        borderColor:          '#f97316',
+        borderWidth:          1,
+        borderRadius:         6,
+        borderSkipped:        false,
+        hoverBackgroundColor: 'rgba(249,115,22,0.9)',
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: { ...tooltip, callbacks: { label: ctx => ' ₹' + ctx.parsed.y } }
+      },
+      scales: {
+        x: { grid: grid, ticks: ticks },
+        y: { grid: grid, ticks: { ...ticks, callback: v => '₹' + v } }
+      }
+    }
+  });
+
+  /* ── Daily Revenue (Line) ── */
+  new Chart(document.getElementById('dailyChart'), {
+    type: 'line',
+    data: {
+      labels: {{ daily_labels|safe }},
+      datasets: [{
+        label: 'Daily ₹',
+        data:   {{ daily_data|safe }},
+        borderColor:          '#34d399',
+        backgroundColor:      'rgba(52,211,153,0.07)',
+        borderWidth:          2,
+        pointBackgroundColor: '#34d399',
+        pointBorderColor:     'rgba(12,18,32,0.8)',
+        pointBorderWidth:     2,
+        pointRadius:          4,
+        pointHoverRadius:     7,
+        tension:              0.4,
+        fill:                 true,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: { ...tooltip, callbacks: { label: ctx => ' ₹' + ctx.parsed.y } }
+      },
+      scales: {
+        x: { grid: grid, ticks: ticks },
+        y: { grid: grid, ticks: { ...ticks, callback: v => '₹' + v } }
+      }
+    }
+  });
+
+  /* ── Member Growth (Line) ── */
+  new Chart(document.getElementById('memberChart'), {
+    type: 'line',
+    data: {
+      labels: {{ member_labels|safe }},
+      datasets: [{
+        label: 'New Members',
+        data:   {{ member_data|safe }},
+        borderColor:          '#60a5fa',
+        backgroundColor:      'rgba(96,165,250,0.07)',
+        borderWidth:          2,
+        pointBackgroundColor: '#60a5fa',
+        pointBorderColor:     'rgba(12,18,32,0.8)',
+        pointBorderWidth:     2,
+        pointRadius:          4,
+        pointHoverRadius:     7,
+        tension:              0.4,
+        fill:                 true,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false }, tooltip },
+      scales: {
+        x: { grid: grid, ticks: ticks },
+        y: { grid: grid, ticks: ticks }
+      }
+    }
+  });
+
+  /* ── Payment Analytics (Doughnut) ── */
+  new Chart(document.getElementById('paymentChart'), {
+    type: 'doughnut',
+    data: {
+      labels: {{ payment_labels|safe }},
+      datasets: [{
+        data:  {{ payment_data|safe }},
+        backgroundColor: [
+          'rgba(249,115,22,0.82)',
+          'rgba(52,211,153,0.82)',
+          'rgba(96,165,250,0.82)',
+          'rgba(192,132,252,0.82)',
+          'rgba(251,191,36,0.82)',
+        ],
+        borderColor:      'rgba(12,18,32,0.9)',
+        borderWidth:      3,
+        hoverOffset:      10,
+        hoverBorderColor: 'rgba(255,255,255,0.15)',
+      }]
+    },
+    options: {
+      responsive: true,
+      cutout: '64%',
+      plugins: {
+        tooltip,
+        legend: {
+          position: 'bottom',
+          labels: {
+            color:           '#8b95a8',
+            padding:         16,
+            font:            { family: "'Barlow'", size: 11, weight: '500' },
+            usePointStyle:   true,
+            pointStyleWidth: 9,
+          }
+        }
+      }
+    }
+  });
+</script>
+{% endblock %}

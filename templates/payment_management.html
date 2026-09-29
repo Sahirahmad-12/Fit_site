@@ -1,0 +1,1252 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="icon"
+      type="image/png"
+      href="{% static 'images/favicons.png' %}"
+    />
+    <title>EnterGYM — Payment Management</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* ── PAGE SHELL ── */
+      .pm-section {
+        position: relative;
+        top: 130px;
+        width: 100%;
+        padding: 1.5rem 1.5rem 4rem;
+      }
+
+      /* ── HEADER ROW ── */
+      .pm-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.25rem;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+      .pm-title {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #fff;
+      }
+      .pm-title svg {
+        flex-shrink: 0;
+      }
+      .pm-badge-pending {
+        background: #ef4444;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 999px;
+      }
+
+      /* ── FILTER PILLS ── */
+      .pm-filters {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1.25rem;
+        flex-wrap: wrap;
+      }
+      .pm-filter {
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        padding: 5px 16px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: rgba(255, 255, 255, 0.6);
+        transition: all 0.15s;
+      }
+      .pm-filter:hover {
+        border-color: rgba(255, 255, 255, 0.5);
+        color: #fff;
+      }
+      .pm-filter.active {
+        background: #22c55e;
+        border-color: #22c55e;
+        color: #fff;
+      }
+
+      /* ── CARD WRAPPER ── */
+      .pm-card {
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      /* ═══════════════════════════════════
+       DESKTOP TABLE  (≥ 1024px)
+    ═══════════════════════════════════ */
+      .pm-table-wrap {
+        overflow-x: auto;
+      }
+
+      table.pm-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 780px;
+      }
+      table.pm-table thead th {
+        background: rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.45);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 0.65rem 1rem;
+        text-align: left;
+        white-space: nowrap;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      table.pm-table tbody tr {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        transition: background 0.12s;
+      }
+      table.pm-table tbody tr:last-child {
+        border-bottom: none;
+      }
+      table.pm-table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.04);
+      }
+      table.pm-table tbody td {
+        padding: 0.9rem 1rem;
+        color: #fff;
+        font-size: 13px;
+        vertical-align: middle;
+      }
+
+      /* ── SHARED cell styles ── */
+      .td-name {
+        font-weight: 700;
+        font-size: 14px;
+      }
+      .td-phone {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 12px;
+      }
+      .td-uid {
+        font-size: 10px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        padding: 2px 6px;
+        border-radius: 4px;
+        color: rgba(255, 255, 255, 0.6);
+        display: inline-block;
+        margin-top: 2px;
+        font-family: monospace;
+        letter-spacing: 0.06em;
+      }
+      .td-pending-amt {
+        color: #ef4444;
+        font-weight: 700;
+        font-size: 14px;
+      }
+      .td-paid-amt {
+        color: #22c55e;
+        font-weight: 600;
+      }
+
+      /* ── INLINE FORM ── */
+      .pay-form {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        flex-wrap: wrap;
+      }
+      .pay-form input[type="number"],
+      .pay-form select,
+      .pay-form input[type="date"] {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        color: #fff;
+        font-family: "Inter", sans-serif;
+        font-size: 12px;
+        padding: 5px 8px;
+        border-radius: 6px;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+      .pay-form input[type="number"] {
+        width: 85px;
+      }
+      .pay-form select {
+        cursor: pointer;
+      }
+      .pay-form input[type="date"] {
+        color-scheme: dark;
+      }
+      .pay-form input[type="number"]:focus,
+      .pay-form select:focus,
+      .pay-form input[type="date"]:focus {
+        border-color: #22c55e;
+      }
+      .pay-form input[type="number"]::-webkit-inner-spin-button {
+        opacity: 0.3;
+      }
+      .pay-form select option {
+        background: #1a1a1a;
+      }
+
+      .save-btn {
+        background: #22c55e;
+        color: #fff;
+        border: none;
+        font-family: "Inter", sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 6px 13px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition:
+          opacity 0.15s,
+          transform 0.1s;
+        white-space: nowrap;
+      }
+      .save-btn:hover {
+        opacity: 0.88;
+      }
+      .save-btn:active {
+        transform: scale(0.97);
+      }
+      .save-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      .row-msg {
+        font-size: 11px;
+        font-family: monospace;
+        display: none;
+      }
+      .row-msg.ok {
+        color: #4ade80;
+        display: inline;
+      }
+      .row-msg.err {
+        color: #f87171;
+        display: inline;
+      }
+
+      .pending-live {
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.4);
+        margin-top: 3px;
+        font-family: monospace;
+      }
+      .pending-live span {
+        color: #f87171;
+        font-weight: 600;
+      }
+      .pending-live span.zero {
+        color: rgba(255, 255, 255, 0.3);
+      }
+
+      .badge-done {
+        color: #4ade80;
+        font-weight: 700;
+        font-size: 12px;
+      }
+      .badge-pending {
+        color: #facc15;
+        font-weight: 700;
+        font-size: 12px;
+      }
+      .badge-expired {
+        color: #f87171;
+        font-weight: 700;
+        font-size: 12px;
+      }
+
+      .pm-empty {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: rgba(255, 255, 255, 0.35);
+        font-size: 14px;
+      }
+
+      .pm-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        color: rgba(255, 255, 255, 0.75);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        transition: color 0.15s;
+      }
+      .pm-back:hover {
+        color: #fff;
+      }
+
+      /* ═══════════════════════════════════
+       MOBILE CARD LAYOUT  (< 768px)
+       Each row becomes a stacked card
+    ═══════════════════════════════════ */
+      .mobile-cards {
+        display: none;
+      }
+
+      .mob-card {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        padding: 1rem;
+        transition: background 0.12s;
+      }
+      .mob-card:last-child {
+        border-bottom: none;
+      }
+      .mob-card:hover {
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      /* top row: id + name + badge */
+      .mob-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-bottom: 0.65rem;
+      }
+      .mob-identity {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+      .mob-name {
+        font-weight: 700;
+        font-size: 15px;
+        color: #fff;
+      }
+      .mob-doj {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.4);
+        margin-top: 1px;
+      }
+
+      /* info grid: 2-col key/value */
+      .mob-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.4rem 0.75rem;
+        margin-bottom: 0.85rem;
+      }
+      .mob-kv {
+      }
+      .mob-k {
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.35);
+        margin-bottom: 2px;
+      }
+      .mob-v {
+        font-size: 13px;
+        color: #fff;
+      }
+
+      /* amounts row */
+      .mob-amounts {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 0.85rem;
+        padding: 0.6rem 0.75rem;
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .mob-amt {
+        flex: 1;
+        text-align: center;
+      }
+      .mob-amt-label {
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.35);
+        margin-bottom: 3px;
+      }
+      .mob-amt-val {
+        font-size: 15px;
+        font-weight: 700;
+      }
+
+      /* form fields stack */
+      .mob-form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .mob-form-row {
+        display: flex;
+        gap: 0.45rem;
+        align-items: center;
+      }
+      .mob-form input[type="number"],
+      .mob-form select,
+      .mob-form input[type="date"] {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        color: #fff;
+        font-family: "Inter", sans-serif;
+        font-size: 13px;
+        padding: 8px 10px;
+        border-radius: 7px;
+        outline: none;
+        transition: border-color 0.15s;
+        min-width: 0;
+      }
+      .mob-form input[type="date"] {
+        color-scheme: dark;
+      }
+      .mob-form input[type="number"]:focus,
+      .mob-form select:focus,
+      .mob-form input[type="date"]:focus {
+        border-color: #22c55e;
+      }
+      .mob-form select option {
+        background: #1a1a1a;
+      }
+      .mob-form input[type="number"]::-webkit-inner-spin-button {
+        opacity: 0.3;
+      }
+
+      .mob-save-btn {
+        width: 100%;
+        background: #22c55e;
+        color: #fff;
+        border: none;
+        font-family: "Inter", sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        padding: 9px;
+        border-radius: 7px;
+        cursor: pointer;
+        transition:
+          opacity 0.15s,
+          transform 0.1s;
+        margin-top: 0.15rem;
+      }
+      .mob-save-btn:hover {
+        opacity: 0.88;
+      }
+      .mob-save-btn:active {
+        transform: scale(0.98);
+      }
+      .mob-save-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      .mob-pending-preview {
+        text-align: center;
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.4);
+        font-family: monospace;
+        margin-top: 0.25rem;
+      }
+      .mob-pending-preview span {
+        color: #f87171;
+        font-weight: 600;
+      }
+      .mob-pending-preview span.zero {
+        color: rgba(255, 255, 255, 0.3);
+      }
+
+      .mob-msg {
+        font-size: 12px;
+        font-family: monospace;
+        text-align: center;
+        margin-top: 0.3rem;
+        display: none;
+      }
+      .mob-msg.ok {
+        color: #4ade80;
+        display: block;
+      }
+      .mob-msg.err {
+        color: #f87171;
+        display: block;
+      }
+
+      /* ═══════════════════════════════════
+       BREAKPOINTS
+    ═══════════════════════════════════ */
+
+      /* TABLET: 768px – 1023px
+       Table stays but columns compress */
+      @media (max-width: 1023px) {
+        .pm-section {
+          top: 110px;
+          padding: 1.25rem 1.25rem 3.5rem;
+        }
+        table.pm-table {
+          min-width: 700px;
+        }
+        table.pm-table thead th {
+          padding: 0.6rem 0.75rem;
+          font-size: 9px;
+        }
+        table.pm-table tbody td {
+          padding: 0.75rem 0.75rem;
+          font-size: 12px;
+        }
+        .td-name {
+          font-size: 13px;
+        }
+        .pay-form input[type="number"] {
+          width: 70px;
+        }
+        .pay-form input[type="date"] {
+          width: 120px;
+        }
+      }
+
+      /* MOBILE: < 768px — switch to card layout */
+      @media (max-width: 767px) {
+        /* Override base.css hero which usually sets height:100vh + overflow:hidden */
+        .hero {
+          height: auto !important;
+          min-height: 100vh;
+          overflow: visible !important;
+        }
+        .hero-bg {
+          position: fixed !important;
+          height: 100vh !important;
+        }
+        .overlay {
+          position: fixed !important;
+          height: 100vh !important;
+        }
+
+        .pm-section {
+          position: relative;
+          top: 130px;
+          margin-top: 10px;
+          padding: 1rem 1rem 6rem;
+        }
+        .pm-title {
+          font-size: 1.05rem;
+        }
+
+        .pm-table-wrap {
+          display: none;
+        }
+        .mobile-cards {
+          display: block;
+        }
+      }
+
+      /* Small phones */
+      @media (max-width: 375px) {
+        .pm-section {
+          padding: 0.85rem 0.85rem 6rem;
+        }
+        .mob-info {
+          grid-template-columns: 1fr;
+        }
+        .mob-form-row {
+          flex-direction: column;
+        }
+        .mob-form-row > * {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <section class="hero">
+      <img
+        src="{% static 'images/Fitness.webp' %}"
+        class="hero-bg"
+        alt="Gym Background"
+      />
+      <div class="overlay"></div>
+
+      <!-- TOP BAR -->
+      <div class="topbar">
+        <div class="topbar-inner">
+          <div><a href="/" class="pm-back">← Back to Home</a></div>
+          <div class="left-inner">Join: (+91) 7000032565</div>
+        </div>
+        <div class="divider"></div>
+      </div>
+
+      <!-- NAVBAR -->
+      <nav class="navbar hero-animate">
+        <div class="nav-inner">
+          <a href="/" class="logo">
+            <img
+              src="{% static 'images/Logo1s.png' %}"
+              alt="EnterGYM Logo"
+              class="logo-img"
+            />
+          </a>
+        </div>
+      </nav>
+
+      <!-- PAGE CONTENT -->
+      <div class="pm-section hero-animate">
+        <!-- Header -->
+        <div class="pm-header">
+          <div class="pm-title">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#fff"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+              />
+            </svg>
+            {% if status_filter == "done" %}Recent Paid — Last 7 Days
+            {% else%}Pending Payments — All Members{% endif %}
+          </div>
+          {% if pending_count %}
+          <span class="pm-badge-pending">{{ pending_count }} Pending</span>
+          {% endif %}
+        </div>
+
+        <!-- Filters -->
+        <div class="pm-filters">
+          <a
+            href="?filter=pending"
+            class="pm-filter {% if status_filter == 'pending' %}active{% endif %}"
+            >Pending ({{ pending_count }})</a
+          >
+          <a
+            href="?filter=done"
+            class="pm-filter {% if status_filter == 'done' %}active{% endif %}"
+            >Paid ({{ paid_count }})</a
+          >
+        </div>
+
+        <!-- Card -->
+        <div class="pm-card">
+          {% if rows %}
+
+          <!-- ══ DESKTOP / TABLET TABLE ══ -->
+          <div class="pm-table-wrap">
+            <table class="pm-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Member</th>
+                  <th>Phone</th>
+                  <th>Plan</th>
+                  <th>Paid (₹)</th>
+                  <th>Pending (₹)</th>
+                  <th>Status</th>
+                  <th>Due Date</th>
+                  <th>Update Payment</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in rows %}
+                <tr
+                  id="row-{{ row.id }}"
+                  data-plan-price="{{ row.plan_price }}"
+                  data-id="{{ row.id }}"
+                >
+                  <td><span class="td-uid">{{ row.unique_id }}</span></td>
+
+                  <td>
+                    <div class="td-name">{{ row.fullname }}</div>
+                    <div
+                      style="
+                        font-size: 10px;
+                        color: rgba(255, 255, 255, 0.4);
+                        margin-top: 2px;
+                      "
+                    >
+                      {{ row.doj }}
+                    </div>
+                  </td>
+
+                  <td class="td-phone">{{ row.phone }}</td>
+
+                  <td
+                    style="color: rgba(255, 255, 255, 0.7); white-space: nowrap"
+                  >
+                    {{ row.plan_name }}<br />
+                    <span
+                      style="font-size: 11px; color: rgba(255, 255, 255, 0.4)"
+                      >₹{{ row.plan_price|floatformat:0 }}</span
+                    >
+                  </td>
+
+                  <td>
+                    <span class="td-paid-amt" id="paid-{{ row.id }}"
+                      >₹{{ row.paid|floatformat:2 }}</span
+                    >
+                  </td>
+
+                  <td>
+                    <span
+                      class="td-pending-amt {% if row.pending == 0 %}td-paid-amt{% endif %}"
+                      id="pending-{{ row.id }}"
+                    >
+                      ₹{{ row.pending|floatformat:2 }}
+                    </span>
+                  </td>
+
+                  <td id="status-{{ row.id }}">
+                    {% if row.is_expired %}
+                    <span class="badge-expired">Expired</span>
+                    {% elif row.payment_status == "Done" %}
+                    <span class="badge-done">Paid ✓</span>
+                    {% else %}
+                    <span class="badge-pending">Pending</span>
+                    {% endif %}
+                  </td>
+
+                  <td
+                    style="
+                      color: rgba(255, 255, 255, 0.55);
+                      font-size: 12px;
+                      white-space: nowrap;
+                    "
+                  >
+                    {{ row.due_date }}
+                  </td>
+
+                  <td>
+                    <div class="pay-form">
+                      <input
+                        type="number"
+                        min="0"
+                        max="{{ row.plan_price }}"
+                        step="1"
+                        value="{{ row.paid|floatformat:0 }}"
+                        id="input-paid-{{ row.id }}"
+                        placeholder="₹ Paid"
+                        data-row-id="{{ row.id }}"
+                      />
+                      <select id="input-method-{{ row.id }}">
+                        <option value="">Method</option>
+                        <option
+                          value="C"
+                          {%
+                          if
+                          row.payment_method=""
+                          ="C"
+                          %}selected{%
+                          endif
+                          %}
+                        >
+                          Cash
+                        </option>
+                        <option
+                          value="U"
+                          {%
+                          if
+                          row.payment_method=""
+                          ="U"
+                          %}selected{%
+                          endif
+                          %}
+                        >
+                          UPI
+                        </option>
+                        <option
+                          value="B"
+                          {%
+                          if
+                          row.payment_method=""
+                          ="B"
+                          %}selected{%
+                          endif
+                          %}
+                        >
+                          UPI+Cash
+                        </option>
+                      </select>
+                      <input
+                        type="date"
+                        id="input-date-{{ row.id }}"
+                        value="{{ row.payment_date }}"
+                      />
+                      <button
+                        class="save-btn"
+                        id="btn-{{ row.id }}"
+                        data-row-id="{{ row.id }}"
+                      >
+                        Save
+                      </button>
+                      <span class="row-msg" id="msg-{{ row.id }}"></span>
+                    </div>
+                    <div class="pending-live">
+                      Pending:
+                      <span
+                        id="preview-{{ row.id }}"
+                        class="{% if row.pending == 0 %}zero{% endif %}"
+                        >₹{{ row.pending|floatformat:0 }}</span
+                      >
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- ══ MOBILE CARDS ══ -->
+          <div class="mobile-cards">
+            {% for row in rows %}
+            <div
+              class="mob-card"
+              id="mob-row-{{ row.id }}"
+              data-plan-price="{{ row.plan_price }}"
+              data-id="{{ row.id }}"
+            >
+              <!-- Top: identity + status -->
+              <div class="mob-top">
+                <div class="mob-identity">
+                  <span class="td-uid">{{ row.unique_id }}</span>
+                  <div>
+                    <div class="mob-name">{{ row.fullname }}</div>
+                    <div class="mob-doj">{{ row.doj }}</div>
+                  </div>
+                </div>
+                <div id="mob-status-{{ row.id }}">
+                  {% if row.is_expired %}
+                  <span class="badge-expired">Expired</span>
+                  {% elif row.payment_status == "Done" %}
+                  <span class="badge-done">Paid ✓</span>
+                  {% else %}
+                  <span class="badge-pending">Pending</span>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Info grid -->
+              <div class="mob-info">
+                <div class="mob-kv">
+                  <div class="mob-k">Phone</div>
+                  <div
+                    class="mob-v"
+                    style="color: rgba(255, 255, 255, 0.6); font-size: 12px"
+                  >
+                    {{ row.phone }}
+                  </div>
+                </div>
+                <div class="mob-kv">
+                  <div class="mob-k">Plan</div>
+                  <div class="mob-v" style="font-size: 12px">
+                    {{ row.plan_name }}
+                    <span style="color: rgba(255, 255, 255, 0.4)"
+                      >₹{{ row.plan_price|floatformat:0 }}</span
+                    >
+                  </div>
+                </div>
+                <div class="mob-kv">
+                  <div class="mob-k">Due Date</div>
+                  <div
+                    class="mob-v"
+                    style="font-size: 12px; color: rgba(255, 255, 255, 0.55)"
+                  >
+                    {{ row.due_date }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Amounts -->
+              <div class="mob-amounts">
+                <div class="mob-amt">
+                  <div class="mob-amt-label">Paid</div>
+                  <div
+                    class="mob-amt-val td-paid-amt"
+                    id="mob-paid-{{ row.id }}"
+                  >
+                    ₹{{ row.paid|floatformat:0 }}
+                  </div>
+                </div>
+                <div
+                  style="width: 1px; background: rgba(255, 255, 255, 0.1)"
+                ></div>
+                <div class="mob-amt">
+                  <div class="mob-amt-label">Pending</div>
+                  <div
+                    class="mob-amt-val {% if row.pending == 0 %}td-paid-amt{% else %}td-pending-amt{% endif %}"
+                    id="mob-pending-{{ row.id }}"
+                  >
+                    ₹{{ row.pending|floatformat:0 }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Update form -->
+              <div class="mob-form">
+                <div class="mob-form-row">
+                  <input
+                    type="number"
+                    min="0"
+                    max="{{ row.plan_price }}"
+                    step="1"
+                    value="{{ row.paid|floatformat:0 }}"
+                    id="mob-input-paid-{{ row.id }}"
+                    placeholder="₹ Amount Paid"
+                  />
+                  <select id="mob-input-method-{{ row.id }}">
+                    <option value="">Method</option>
+                    <option
+                      value="C"
+                      {%
+                      if
+                      row.payment_method=""
+                      ="C"
+                      %}selected{%
+                      endif
+                      %}
+                    >
+                      Cash
+                    </option>
+                    <option
+                      value="U"
+                      {%
+                      if
+                      row.payment_method=""
+                      ="U"
+                      %}selected{%
+                      endif
+                      %}
+                    >
+                      UPI
+                    </option>
+                    <option
+                      value="B"
+                      {%
+                      if
+                      row.payment_method=""
+                      ="B"
+                      %}selected{%
+                      endif
+                      %}
+                    >
+                      UPI+Cash
+                    </option>
+                  </select>
+                </div>
+                <input
+                  type="date"
+                  id="mob-input-date-{{ row.id }}"
+                  value="{{ row.payment_date }}"
+                  style="width: 100%"
+                />
+                <button
+                  class="mob-save-btn"
+                  id="mob-btn-{{ row.id }}"
+                  data-row-id="{{ row.id }}"
+                >
+                  Save Payment
+                </button>
+                <div class="mob-pending-preview">
+                  After save — Pending:
+                  <span
+                    id="mob-preview-{{ row.id }}"
+                    class="{% if row.pending == 0 %}zero{% endif %}"
+                    >₹{{ row.pending|floatformat:0 }}</span
+                  >
+                </div>
+                <div class="mob-msg" id="mob-msg-{{ row.id }}"></div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+          {% else %}
+          <div class="pm-empty">
+            {% if status_filter == 'done' %} No paid enrollments in the last 7
+            days. {% else %} All caught up — no pending payments. ✓ {% endif %}
+          </div>
+          {% endif %}
+        </div>
+        <!-- /pm-card -->
+      </div>
+      <!-- /pm-section -->
+    </section>
+
+    <script src="{% static 'js/base.js' %}"></script>
+    <script nonce="{{ request.csp_nonce }}">
+      const CSRF = "{{ csrf_token }}";
+      document.addEventListener("DOMContentLoaded", () => {
+        const todayISO = new Date().toISOString().split("T")[0];
+        document.querySelectorAll('input[id^="input-date-"]').forEach(el => {
+          if (!el.value) el.value = todayISO;
+        });
+        document.querySelectorAll('input[id^="mob-input-date-"]').forEach(el => {
+          if (!el.value) el.value = todayISO;
+        });
+        // Desktop save buttons
+        document.querySelectorAll(".save-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            savePayment(btn.dataset.rowId);
+          });
+        });
+
+        // Mobile save buttons
+        document.querySelectorAll(".mob-save-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            savePaymentMob(btn.dataset.rowId);
+          });
+        });
+
+        // Enter key support
+        document.querySelectorAll('input[id^="input-paid-"]').forEach(input => {
+          input.addEventListener("keydown", e => {
+            if (e.key === "Enter") {
+              savePayment(input.dataset.rowId);
+            }
+          });
+        });
+
+      });
+      /* ── Desktop table: live preview ── */
+      document.querySelectorAll('input[id^="input-paid-"]').forEach((input) => {
+        const rowId = input.id.replace("input-paid-", "");
+        const row = document.getElementById("row-" + rowId);
+        if (!row) return;
+        const planPrice = parseFloat(row.dataset.planPrice) || 0;
+        input.addEventListener("input", () => {
+          const paid = Math.min(parseFloat(input.value) || 0, planPrice);
+          const pending = Math.max(planPrice - paid, 0);
+          const el = document.getElementById("preview-" + rowId);
+          if (el) {
+            el.textContent = "₹" + Math.round(pending);
+            el.className = pending === 0 ? "zero" : "";
+          }
+        });
+      });
+
+      /* ── Mobile cards: live preview ── */
+      document
+        .querySelectorAll('input[id^="mob-input-paid-"]')
+        .forEach((input) => {
+          const rowId = input.id.replace("mob-input-paid-", "");
+          const card = document.getElementById("mob-row-" + rowId);
+          if (!card) return;
+          const planPrice = parseFloat(card.dataset.planPrice) || 0;
+          input.addEventListener("input", () => {
+            const paid = Math.min(parseFloat(input.value) || 0, planPrice);
+            const pending = Math.max(planPrice - paid, 0);
+            const el = document.getElementById("mob-preview-" + rowId);
+            if (el) {
+              el.textContent = "₹" + Math.round(pending);
+              el.className = pending === 0 ? "zero" : "";
+            }
+          });
+        });
+
+      /* ── Shared API call ── */
+      async function postPayment(rowId, paid, method, dt) {
+        const res = await fetch("/admin-tools/update-payment/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-CSRFToken": CSRF },
+          body: JSON.stringify({
+            enrollment_id: rowId,
+            paid_amount: paid,
+            payment_method: method,
+            payment_date: dt,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || "Error");
+        return data;
+      }
+
+      /* ── Desktop save ── */
+      async function savePayment(rowId) {
+        const btn = document.getElementById("btn-" + rowId);
+        const msgEl = document.getElementById("msg-" + rowId);
+        const paidEl = document.getElementById("input-paid-" + rowId);
+        const methodEl = document.getElementById("input-method-" + rowId);
+        const dateEl = document.getElementById("input-date-" + rowId);
+        const row = document.getElementById("row-" + rowId);
+        const planPrice = parseFloat(row.dataset.planPrice) || 0;
+        const paid = Math.min(parseFloat(paidEl.value) || 0, planPrice);
+
+        msgEl.className = "row-msg";
+        msgEl.textContent = "";
+        btn.disabled = true;
+        btn.textContent = "...";
+
+        try {
+          const data = await postPayment(
+            rowId,
+            paid,
+            methodEl.value,
+            dateEl.value,
+          );
+          document.getElementById("paid-" + rowId).textContent =
+            "₹" + data.paid.toFixed(2);
+          const pendingEl = document.getElementById("pending-" + rowId);
+          pendingEl.textContent = "₹" + data.pending.toFixed(2);
+          pendingEl.className =
+            data.pending === 0 ? "td-paid-amt" : "td-pending-amt";
+          const prevEl = document.getElementById("preview-" + rowId);
+          if (prevEl) {
+            prevEl.textContent = "₹" + Math.round(data.pending);
+            prevEl.className = data.pending === 0 ? "zero" : "";
+          }
+          if (data.payment_status !== "Done") {
+            document.getElementById("status-" + rowId).innerHTML =
+              '<span class="badge-pending">Pending</span>';
+          }
+          paidEl.value = Math.round(data.paid);
+          if (data.payment_status === "Done") {
+            const rowEl = document.getElementById("row-" + rowId);
+            rowEl.style.transition = "opacity 0.4s ease, background 0.4s ease";
+            rowEl.style.background = "rgba(34,197,94,.12)";
+            msgEl.textContent = "✓ Paid — removing...";
+            msgEl.className = "row-msg ok";
+            setTimeout(() => {
+              rowEl.style.opacity = "0";
+              setTimeout(() => {
+                rowEl.remove();
+                updateBadge();
+                checkEmpty();
+              }, 400);
+            }, 800);
+          } else {
+            msgEl.textContent = "✓ Saved";
+            msgEl.className = "row-msg ok";
+            setTimeout(() => {
+              msgEl.className = "row-msg";
+            }, 2500);
+          }
+        } catch (err) {
+          msgEl.textContent = "✗ " + err.message;
+          msgEl.className = "row-msg err";
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Save";
+        }
+      }
+
+      /* ── Mobile save ── */
+      async function savePaymentMob(rowId) {
+        const btn = document.getElementById("mob-btn-" + rowId);
+        const msgEl = document.getElementById("mob-msg-" + rowId);
+        const paidEl = document.getElementById("mob-input-paid-" + rowId);
+        const methodEl = document.getElementById("mob-input-method-" + rowId);
+        const dateEl = document.getElementById("mob-input-date-" + rowId);
+        const card = document.getElementById("mob-row-" + rowId);
+        const planPrice = parseFloat(card.dataset.planPrice) || 0;
+        const paid = Math.min(parseFloat(paidEl.value) || 0, planPrice);
+
+        msgEl.className = "mob-msg";
+        msgEl.textContent = "";
+        btn.disabled = true;
+        btn.textContent = "Saving...";
+
+        try {
+          const data = await postPayment(
+            rowId,
+            paid,
+            methodEl.value,
+            dateEl.value,
+          );
+          document.getElementById("mob-paid-" + rowId).textContent =
+            "₹" + Math.round(data.paid);
+          const mobPendEl = document.getElementById("mob-pending-" + rowId);
+          mobPendEl.textContent = "₹" + Math.round(data.pending);
+          mobPendEl.className =
+            "mob-amt-val " +
+            (data.pending === 0 ? "td-paid-amt" : "td-pending-amt");
+          const prevEl = document.getElementById("mob-preview-" + rowId);
+          if (prevEl) {
+            prevEl.textContent = "₹" + Math.round(data.pending);
+            prevEl.className = data.pending === 0 ? "zero" : "";
+          }
+          if (data.payment_status !== "Done") {
+            document.getElementById("mob-status-" + rowId).innerHTML =
+              '<span class="badge-pending">Pending</span>';
+          }
+          paidEl.value = Math.round(data.paid);
+          if (data.payment_status === "Done") {
+            card.style.transition = "opacity .4s ease, background .4s ease";
+            card.style.background = "rgba(34,197,94,.10)";
+            msgEl.textContent = "✓ Fully paid — removing...";
+            msgEl.className = "mob-msg ok";
+            setTimeout(() => {
+              card.style.opacity = "0";
+              setTimeout(() => {
+                card.remove();
+                updateBadge();
+                checkEmpty();
+              }, 400);
+            }, 900);
+          } else {
+            msgEl.textContent = "✓ Saved successfully";
+            msgEl.className = "mob-msg ok";
+            setTimeout(() => {
+              msgEl.className = "mob-msg";
+            }, 2500);
+          }
+        } catch (err) {
+          msgEl.textContent = "✗ " + err.message;
+          msgEl.className = "mob-msg err";
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Save Payment";
+        }
+      }
+
+      function updateBadge() {
+        const badge = document.querySelector(".pm-badge-pending");
+        if (!badge) return;
+        const current = parseInt(badge.textContent) || 0;
+        const next = current - 1;
+        if (next <= 0) badge.remove();
+        else badge.textContent = next + " Pending";
+      }
+
+      function checkEmpty() {
+        const hasTbodyRows = document.querySelector(".pm-table tbody tr");
+        const hasMobCards = document.querySelector(".mob-card");
+        if (!hasTbodyRows && !hasMobCards) {
+          document.querySelector(".pm-card").innerHTML =
+            '<div class="pm-empty">All caught up — no pending payments. ✓</div>';
+        }
+      }
+    </script>
+  </body>
+</html>

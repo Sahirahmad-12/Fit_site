@@ -1,0 +1,15 @@
+media/
+face_service.py
+enroll_face_camera.py
+env/
+venv/
+ENV/
+.env
+staticfiles_build/
+db.sqlite3
+__pycache__/
+*.py[cod]
+pc_access.mp3
+Application
+firebase-credentials.json
+resize_icons.py

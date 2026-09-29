@@ -1,0 +1,140 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body { background: #080808; font-family: 'Inter', sans-serif; color: #fff; }
+
+.hero-animate {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: smoothFade 0.5s ease-out forwards;
+}
+@keyframes smoothFade { to { opacity: 1; transform: translateY(0); } }
+
+/* Page */
+.workout-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+  position: relative;
+  margin-bottom: 120px;
+}
+
+/* Eyebrow + Title */
+.workout-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #ff5a00;
+  margin-bottom: 8px;
+}
+.workout-title {
+  font-size: clamp(26px, 5vw, 42px);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+.workout-sub {
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 36px;
+}
+
+/* Category pills */
+.category-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 48px;
+}
+.category-buttons a {
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 6px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.55);
+  transition: all 0.15s;
+}
+.category-buttons a:hover,
+.category-buttons a.active {
+  background: #ff5a00;
+  border-color: #ff5a00;
+  color: #fff;
+}
+
+/* Section */
+.workout-section {
+  margin-bottom: 56px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.section-header span {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #ff5a00;
+  white-space: nowrap;
+}
+.section-header::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #1e1e1e;
+}
+
+/* Video grid */
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+@media (min-width: 640px) {
+  .video-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 1024px) {
+  .video-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* Video card */
+.video-card {
+  background: #111;
+  border: 1px solid #1e1e1e;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.video-card:hover {
+  border-color: rgba(255,90,0,0.4);
+  transform: translateY(-3px);
+}
+.video-card video {
+  width: 100%;
+  display: block;
+  aspect-ratio: 9/16;
+  object-fit: cover;
+  background: #0a0a0a;
+}
+
+/* Hide noisy controls */
+video::-webkit-media-controls-timeline { display: none; }
+video::-webkit-media-controls-current-time-display { display: none; }
+video::-webkit-media-controls-time-remaining-display { display: none; }
+video::-webkit-media-controls-volume-slider { display: none; }
+video::-webkit-media-controls-mute-button { display: none; }
+video::-webkit-media-controls-muted-button { display: none; }
+
+/* Responsive padding */
+@media (max-width: 480px) {
+  .workout-container { padding: 32px 16px 60px; }
+  .video-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+}

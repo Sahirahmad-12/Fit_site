@@ -1,0 +1,142 @@
+/* GLOBAL */
+body {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  background: black;
+  color: white;
+}
+
+/* HERO */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+}
+.hero-animate {
+  opacity: 0;
+  transform: translateY(40px);
+  animation: smoothFade 0.5s ease-out forwards;
+}
+
+@keyframes smoothFade {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.hero-bg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/* TOP BAR */
+.topbar {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 10;
+}
+
+/* NEW */
+.topbar-inner {
+  max-width: 1200px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 20px;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.topbar-line {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* NAVBAR */
+.navbar {
+  position: absolute;
+  top: 60px;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  text-align: center;
+  z-index: 20;
+}
+
+.nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;              /* center container */
+  display: flex;
+  justify-content: center;     /* center logo horizontally */
+  align-items: center;
+  height: 80px;                /* control navbar height */
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo img {
+  height: 70px;                /* adjust size */
+  width: auto;
+  filter: drop-shadow(0 0 10px rgba(255, 140, 0, 0.4));
+}
+.divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.2);
+}
+/* HERO CONTENT */
+.hero-content {
+  position: relative;
+  z-index: 20;
+  text-align: center;
+  margin-top: 140px;
+  margin-left: 20px;
+  color: #f97316;
+  animation: heroReveal 1.5s ease-out forwards;
+}
+
+.hero-content h1 {
+  font-size: 40px;
+}
+
+/* ANIMATION */
+@keyframes heroReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+.hero-animate {
+  animation: heroReveal 1.5s ease-out forwards;
+}
+@media (max-width: 600px) {
+  .topbar-inner {
+    display: flex;
+    flex-direction: row;
+    gap: 80px;
+  }
+  .topbar-inner .left-inner {
+    text-align: right;
+  }
+}
+/* MENU */
+.menu-items {
+  display: none;
+}

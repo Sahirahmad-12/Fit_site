@@ -1,0 +1,524 @@
+{% extends "base.html" %}
+{% load static custom_filters %}
+
+{% block title %}Today's Attendance{% endblock %}
+
+{% block link %}
+<style>
+
+  .header-color { color:#ff4d00; }
+  .date-color   { color:#22c55e; }
+
+  .att-page {
+    padding: 16px 12px 80px;
+    max-width: 860px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Header */
+  .att-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .att-header h2 {
+    color: #fff;
+    font-size: clamp(13px, 3.5vw, 17px);
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin: 0;
+  }
+  .att-badge {
+    background: #ff4d0022;
+    border: 1px solid #ff4d0055;
+    color: #ff4d00;
+    font-size: clamp(9px, 2.5vw, 11px);
+    font-weight: 800;
+    letter-spacing: 2px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  /* Section label */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 20px 0 10px;
+  }
+  .section-label span {
+    color: #ff4d00;
+    font-size: clamp(9px, 2.5vw, 10px);
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .section-label::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #1e1e1e;
+  }
+
+  /* Card */
+  .att-card {
+    background: #111;
+    border: 1px solid #1e1e1e;
+    border-radius: 8px;
+    padding: clamp(10px, 2.5vw, 14px) clamp(12px, 3vw, 18px);
+    display: flex;
+    align-items: center;
+    gap: clamp(10px, 2.5vw, 16px);
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+    box-sizing: border-box;
+    width: 100%;
+  }
+  .att-card:hover  { border-color: #ff4d0055; background: #161616; }
+  .att-card.expired { border-left: 3px solid #ff3333; }
+
+  /* Time */
+  .att-time {
+    min-width: clamp(54px, 14vw, 72px);
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .att-time .time-val {
+    color: #ff4d00;
+    font-size: clamp(11px, 3vw, 14px);
+    font-weight: 800;
+    letter-spacing: 0.5px;
+  }
+  .att-time .time-label {
+    color: #444;
+    font-size: clamp(7px, 2vw, 9px);
+    letter-spacing: 2px;
+    font-weight: 600;
+  }
+
+  .att-divider {
+    width: 1px;
+    height: 36px;
+    background: #222;
+    flex-shrink: 0;
+  }
+
+  /* Avatar */
+  .att-avatar {
+    width: clamp(34px, 9vw, 42px);
+    height: clamp(34px, 9vw, 42px);
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #2a2a2a;
+    flex-shrink: 0;
+    background: #1a1a1a;
+  }
+  .att-avatar-placeholder {
+    width: clamp(34px, 9vw, 42px);
+    height: clamp(34px, 9vw, 42px);
+    border-radius: 50%;
+    border: 1px solid #2a2a2a;
+    background: #1a1a1a;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+    font-size: clamp(13px, 3.5vw, 17px);
+    font-weight: 800;
+  }
+
+  /* Info */
+  .att-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .att-name {
+    color: #fff;
+    font-size: clamp(12px, 3.5vw, 15px);
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .att-uid {
+    color: #555;
+    font-size: clamp(9px, 2.5vw, 11px);
+    letter-spacing: 2px;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  /* Meta */
+  .att-meta {
+    text-align: right;
+    flex-shrink: 0;
+    min-width: clamp(60px, 16vw, 80px);
+  }
+  .att-pending {
+    font-size: clamp(12px, 3vw, 14px);
+    font-weight: 800;
+  }
+  .att-pending.has-pending { color: #ff4d00; }
+  .att-due {
+    font-size: clamp(8px, 2vw, 10px);
+    color: #444;
+    letter-spacing: 1px;
+    margin-top: 3px;
+  }
+  .att-due.expired-tag { color: #ff3333; }
+
+  .empty-state {
+    color: #333;
+    font-size: clamp(10px, 2.5vw, 12px);
+    letter-spacing: 2px;
+    text-align: center;
+    padding: 24px 0;
+    font-weight: 600;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #000000bb;
+    z-index: 1000;
+    justify-content: flex-end;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal-panel {
+    background: #0e0e0e;
+    border-left: 1px solid #1e1e1e;
+    width: 100%;
+    max-width: 420px;
+    height: 100%;
+    overflow-y: auto;
+    padding: clamp(20px, 5vw, 32px) clamp(16px, 4vw, 24px) 48px;
+    transform: translateX(100%);
+    transition: transform .3s cubic-bezier(.4,0,.2,1);
+    position: relative;
+    box-sizing: border-box;
+  }
+  .modal-overlay.open .modal-panel { transform: translateX(0); }
+
+  @media (max-width: 440px) {
+    .modal-panel { max-width: 100%; border-left: none; }
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    color: #888;
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color .2s;
+    flex-shrink: 0;
+  }
+  .modal-close:hover { color: #fff; }
+
+  /* Modal avatar */
+  .modal-avatar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+    padding-right: 36px;
+  }
+  .modal-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ff4d0055;
+    background: #1a1a1a;
+    flex-shrink: 0;
+  }
+  .modal-avatar-placeholder {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 2px solid #2a2a2a;
+    background: #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #444;
+    font-size: 22px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .modal-title-block { min-width: 0; }
+  .modal-uid {
+    color: #ff4d00;
+    font-size: clamp(9px, 2.5vw, 11px);
+    font-weight: 800;
+    letter-spacing: 4px;
+    margin-bottom: 4px;
+  }
+  .modal-name {
+    color: #fff;
+    font-size: clamp(16px, 5vw, 22px);
+    font-weight: 900;
+    letter-spacing: 1px;
+    word-break: break-word;
+  }
+  .modal-accent {
+    width: 36px;
+    height: 2px;
+    background: #ff4d00;
+    border-radius: 1px;
+    margin: 10px 0 20px;
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(10px, 3vw, 14px);
+    margin-bottom: 18px;
+  }
+  .detail-item.full { grid-column: 1 / -1; }
+  .detail-label {
+    color: #444;
+    font-size: clamp(8px, 2vw, 9px);
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+  .detail-value {
+    color: #ddd;
+    font-size: clamp(11px, 3vw, 13px);
+    font-weight: 600;
+    word-break: break-word;
+  }
+  .detail-value.highlight { color: #ff4d00; }
+  .detail-value.success   { color: #22c55e; }
+  .detail-value.danger    { color: #ff3333; }
+
+  .modal-divider { height: 1px; background: #1a1a1a; margin: 18px 0; }
+  .modal-section-title {
+    color: #333;
+    font-size: clamp(8px, 2vw, 9px);
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="att-page hero-animate">
+  <h1 class="header-color">ATTENDANCE</h1>
+  <p class="date-color">{{ today|date:"l, d F Y" }}</p>
+  <div class="att-header">
+    <div><h2>CHECK-INS</h2></div>
+    <div class="att-badge">{{ total }} TOTAL</div>
+  </div>
+
+  {% for section_name, section_icon, records in sections %}
+  <div class="section-label"><span>{{ section_icon }} {{ section_name }}</span></div>
+  {% if records %}
+    {% for r in records %}
+    <div class="att-card {% if r.is_expired %}expired{% endif %}" data-json="{{ r|data_json }}">
+
+      <div class="att-time">
+        <div class="time-val">{{ r.time }}</div>
+        <div class="time-label">CHECK-IN</div>
+      </div>
+      <div class="att-divider"></div>
+
+      {% if r.image_url %}
+        <img class="att-avatar" src="{{ r.image_url }}" alt="{{ r.name }}" loading="lazy">
+      {% else %}
+        <div class="att-avatar-placeholder">{{ r.name|first|upper }}</div>
+      {% endif %}
+
+      <div class="att-info">
+        <div class="att-name">{{ r.name }}</div>
+        <div class="att-uid">UID · {{ r.unique_id }}</div>
+      </div>
+
+      <div class="att-meta">
+        {% if r.pending_amount > 0 %}
+        <div class="att-pending has-pending">₹{{ r.pending_amount|floatformat:0 }}</div>
+        {% endif %}
+        <div class="att-due {% if r.is_expired %}expired-tag{% endif %}">
+          {% if r.is_expired %}EXPIRED{% else %}{{ r.due_date }}{% endif %}
+        </div>
+      </div>
+
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-state">NO {{ section_name|upper }} CHECK-INS</div>
+  {% endif %}
+  {% endfor %}
+
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-panel" id="modalPanel">
+    <button class="modal-close" id="modalCloseBtn">✕</button>
+
+    <div class="modal-avatar-wrap">
+      <img class="modal-avatar" id="mAvatar" src="" alt="" style="display:none">
+      <div class="modal-avatar-placeholder" id="mAvatarPlaceholder"></div>
+      <div class="modal-title-block">
+        <div class="modal-uid" id="mUid"></div>
+        <div class="modal-name" id="mName"></div>
+      </div>
+    </div>
+    <div class="modal-accent"></div>
+
+    <div class="modal-section-title">Personal</div>
+    <div class="detail-grid">
+      <div class="detail-item">
+        <div class="detail-label">Phone</div>
+        <div class="detail-value" id="mPhone"></div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Gender</div>
+        <div class="detail-value" id="mGender"></div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Joined</div>
+        <div class="detail-value" id="mDoj"></div>
+      </div>
+      <div class="detail-item full">
+        <div class="detail-label">Address</div>
+        <div class="detail-value" id="mAddress"></div>
+      </div>
+    </div>
+
+    <div class="modal-divider"></div>
+
+    <div class="modal-section-title">Membership</div>
+    <div class="detail-grid">
+      <div class="detail-item">
+        <div class="detail-label">Plan</div>
+        <div class="detail-value highlight" id="mPlan"></div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Plan Price</div>
+        <div class="detail-value" id="mPlanPrice"></div>
+      </div>
+
+      <div class="detail-item">
+        <div class="detail-label">Trainer</div>
+        <div class="detail-value" id="mTrainer"></div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Payment</div>
+        <div class="detail-value" id="mPayStatus"></div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Pending</div>
+        <div class="detail-value" id="mPending"></div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Expires</div>
+        <div class="detail-value" id="mDue"></div>
+      </div>
+      <div class="detail-item full">
+        <div class="detail-label">Days Remaining</div>
+        <div class="detail-value" id="mDays"></div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Payment Date</div>
+        <div class="detail-value" id="mPayDate"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script nonce="{{ request.csp_nonce }}">
+  const overlay  = document.getElementById('modalOverlay');
+  const closeBtn = document.getElementById('modalCloseBtn');
+
+  document.addEventListener('click', function (e) {
+    const card = e.target.closest('.att-card');
+    if (card) {
+      try { openModal(JSON.parse(card.dataset.json)); }
+      catch (err) { console.error('Modal parse error:', err); }
+    }
+  });
+
+  closeBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', function (e) { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+
+  function openModal(r) {
+    // Avatar
+    const img         = document.getElementById('mAvatar');
+    const placeholder = document.getElementById('mAvatarPlaceholder');
+    if (r.image_url) {
+      img.src              = r.image_url;
+      img.alt              = r.name || '';
+      img.style.display    = 'block';
+      placeholder.style.display = 'none';
+    } else {
+      img.style.display         = 'none';
+      placeholder.style.display = 'flex';
+      placeholder.textContent   = (r.name || '?')[0].toUpperCase();
+    }
+
+    document.getElementById('mUid').textContent      = 'UID · ' + (r.unique_id || '—');
+    document.getElementById('mName').textContent     = r.name    || '—';
+    document.getElementById('mPhone').textContent    = r.phone   || '—';
+    document.getElementById('mGender').textContent   = r.gender  || '—';
+    document.getElementById('mDoj').textContent      = r.doj     || '—';
+    document.getElementById('mAddress').textContent  = r.address || '—';
+    document.getElementById('mPlan').textContent     = r.plan    || '—';
+    document.getElementById('mPlanPrice').textContent = r.plan_price != null ? '₹' + r.plan_price : '—';
+    document.getElementById('mTrainer').textContent  = r.trainer || '—';
+
+    const ps = document.getElementById('mPayStatus');
+    ps.textContent = r.payment_status || '—';
+    ps.className   = 'detail-value ' + (r.payment_status === 'Done' ? 'success' : 'danger');
+
+    const pend = document.getElementById('mPending');
+    pend.textContent = r.pending_amount != null ? '₹' + r.pending_amount : '—';
+    pend.className   = 'detail-value ' + (r.pending_amount > 0 ? 'danger' : 'success');
+
+    const due = document.getElementById('mDue');
+    due.textContent = r.due_date || '—';
+    due.className   = 'detail-value ' + (r.is_expired ? 'danger' : '');
+
+    const days = document.getElementById('mDays');
+    days.textContent = r.is_expired             ? 'EXPIRED'
+                     : r.days_remaining != null  ? r.days_remaining + ' days'
+                     : '—';
+    days.className = 'detail-value ' + (
+      r.is_expired           ? 'danger'    :
+      r.days_remaining <= 5  ? 'highlight' : 'success'
+    );
+    document.getElementById('mPayDate').textContent = r.payment_date || '—';
+
+    overlay.classList.add('open');
+  }
+
+  function closeModal() { overlay.classList.remove('open'); }
+</script>
+{% endblock %}
